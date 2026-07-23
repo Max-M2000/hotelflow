@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
-import DemoPage from './pages/DemoPage';
 import Dashboard from './components/Dashboard';
+import TicketDetail from './components/TicketDetail';
 import './styles/app.css';
 
 function App() {
@@ -10,12 +10,10 @@ function App() {
     return localStorage.getItem('hotelflow_auth') === 'true';
   });
 
-  const handleLogin = (email, password) => {
-    if (email && password) {
-      localStorage.setItem('hotelflow_auth', 'true');
-      localStorage.setItem('hotelflow_user', email);
-      setIsAuthenticated(true);
-    }
+  const handleLogin = (email) => {
+    localStorage.setItem('hotelflow_auth', 'true');
+    localStorage.setItem('hotelflow_user', email);
+    setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
@@ -29,15 +27,21 @@ function App() {
       <Routes>
         <Route
           path="/login"
-          element={<LoginPage onLogin={handleLogin} />}
-        />
-        <Route
-          path="/demo"
-          element={<DemoPage />}
+          element={
+            isAuthenticated ? <Navigate to="/" /> : <LoginPage onLogin={handleLogin} />
+          }
         />
         <Route
           path="/"
-          element={isAuthenticated ? <Dashboard onLogout={handleLogout} /> : <Navigate to="/login" />}
+          element={
+            isAuthenticated ? <Dashboard onLogout={handleLogout} /> : <Navigate to="/login" />
+          }
+        />
+        <Route
+          path="/ticket/:id"
+          element={
+            isAuthenticated ? <TicketDetail /> : <Navigate to="/login" />
+          }
         />
       </Routes>
     </Router>

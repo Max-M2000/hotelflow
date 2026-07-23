@@ -118,6 +118,48 @@
   text-decoration: underline;
 }
 
+.demoBox {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f0f4ff;
+  border: 1px dashed #667eea;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.demoBoxTitle {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #667eea;
+  margin-bottom: 6px;
+}
+
+.demoBoxRow {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.demoFillButton {
+  padding: 6px 16px;
+  background: white;
+  border: 1px solid #667eea;
+  color: #667eea;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demoFillButton:hover {
+  background: #667eea;
+  color: white;
+}
+
 @media (max-width: 480px) {
   .authCard {
     padding: 24px;

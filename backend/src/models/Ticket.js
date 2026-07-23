@@ -22,6 +22,11 @@ const ticketSchema = new mongoose.Schema(
       enum: ['open', 'in_progress', 'closed'],
       default: 'open',
     },
+    sentiment: {
+      type: String,
+      enum: ['positive', 'neutral', 'negative'],
+      default: 'neutral',
+    },
     assignedTo: { type: String, default: null },
     notes: [
       {

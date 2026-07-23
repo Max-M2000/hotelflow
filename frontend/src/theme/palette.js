@@ -124,3 +124,44 @@ export const getCategoryColor = (category, isDark = false) => {
       return palette.textSecondary;
   }
 };
+
+export const getSentimentColor = (sentiment, isDark = false) => {
+  const palette = isDark ? DARK_MODE : LIGHT_MODE;
+
+  switch (sentiment) {
+    case 'positive':
+      return palette.sentimentPositive;
+    case 'neutral':
+      return palette.sentimentNeutral;
+    case 'negative':
+      return palette.sentimentNegative;
+    default:
+      return palette.sentimentNeutral;
+  }
+};
+
+// German labels for UI display
+export const CATEGORY_LABELS = {
+  complaint: 'Beschwerde',
+  inquiry: 'Anfrage',
+  booking: 'Buchung',
+  other: 'Sonstiges',
+};
+
+export const PRIORITY_LABELS = {
+  high: 'Hoch',
+  medium: 'Mittel',
+  low: 'Niedrig',
+};
+
+export const STATUS_LABELS = {
+  open: 'Offen',
+  in_progress: 'In Bearbeitung',
+  closed: 'Geschlossen',
+};
+
+export const SENTIMENT_LABELS = {
+  positive: 'Zufrieden',
+  neutral: 'Neutral',
+  negative: 'Unzufrieden',
+};

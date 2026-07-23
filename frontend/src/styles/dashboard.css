@@ -333,6 +333,64 @@ body {
   font-style: italic;
 }
 
+/* ===== Enhanced filter bar (multi-filter) ===== */
+.filterBar {
+  flex-wrap: wrap;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filterGroup label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+}
+
+.filterResult {
+  margin-left: auto;
+  align-self: flex-end;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Clickable rows */
+.ticketRow {
+  cursor: pointer;
+}
+
+/* Sentiment indicator */
+.sentimentDot {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Team cell */
+.teamCell {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* Retry button in error state */
+.retryButton {
+  margin-left: 12px;
+  padding: 4px 12px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container { padding: 16px; }
@@ -340,4 +398,5 @@ body {
   .table { font-size: 12px; }
   .table th, .table td { padding: 12px; }
   .header h1 { font-size: 24px; }
+  .filterResult { margin-left: 0; width: 100%; }
 }

@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/auth.css';
 
+const DEMO_EMAIL = 'admin@hotelflow.com';
+const DEMO_PASSWORD = 'demo123';
+
 const LoginPage = ({ onLogin }) => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -9,32 +12,23 @@ const LoginPage = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // Simple validation
-    if (!email || !password) {
-      setError('Email and password required');
-      setLoading(false);
-      return;
-    }
-
-    // Admin account for demo
-    const adminEmail = 'admin@hotelflow.com';
-    const adminPassword = 'hotelflow123';
-
-    if (email === adminEmail && password === adminPassword) {
-      setTimeout(() => {
-        onLogin(email, password);
-        navigate('/');
-        setLoading(false);
-      }, 500);
+    if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+      onLogin(email);
+      navigate('/');
     } else {
-      setError('Invalid credentials. Use admin@hotelflow.com / hotelflow123');
+      setError('Falsche Zugangsdaten. Nutze die unten angezeigten Demo-Daten.');
       setLoading(false);
     }
+  };
+
+  const fillDemo = () => {
+    setEmail(DEMO_EMAIL);
+    setPassword(DEMO_PASSWORD);
   };
 
   return (
@@ -42,24 +36,24 @@ const LoginPage = ({ onLogin }) => {
       <div className="authCard">
         <div className="authHeader">
           <h1>🏨 HotelFlow</h1>
-          <p>Guest Communication Management</p>
+          <p>E-Mail → Ticket Automatisierung</p>
         </div>
 
         <form onSubmit={handleSubmit} className="authForm">
           <div className="formGroup">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">E-Mail</label>
             <input
               id="email"
               type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="test@example.com"
+              placeholder="admin@hotelflow.com"
               className="authInput"
             />
           </div>
 
           <div className="formGroup">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Passwort</label>
             <input
               id="password"
               type="password"
@@ -73,12 +67,16 @@ const LoginPage = ({ onLogin }) => {
           {error && <div className="authError">{error}</div>}
 
           <button type="submit" disabled={loading} className="authButton">
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Anmelden…' : 'Anmelden'}
           </button>
         </form>
 
-        <div className="authFooter">
-          <p>Demo? <a href="/demo" className="authLink">Try Demo Mode</a></p>
+        <div className="demoBox">
+          <div className="demoBoxTitle">Demo-Zugang</div>
+          <div className="demoBoxRow">admin@hotelflow.com / demo123</div>
+          <button type="button" onClick={fillDemo} className="demoFillButton">
+            Demo-Daten einsetzen
+          </button>
         </div>
       </div>
     </div>
