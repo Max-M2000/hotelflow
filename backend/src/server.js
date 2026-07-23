@@ -25,11 +25,17 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3001;
 
-// Connect to DB and start server
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`✓ HotelFlow backend running on port ${PORT}`);
-  });
+// Start server immediately (don't wait for DB)
+app.listen(PORT, () => {
+  console.log(`✓ HotelFlow backend running on port ${PORT}`);
+  console.log(`Environment: NODE_ENV=${process.env.NODE_ENV}`);
+  console.log(`MONGODB_URI set: ${process.env.MONGODB_URI ? 'YES' : 'NO'}`);
+  console.log(`OPENAI_API_KEY set: ${process.env.OPENAI_API_KEY ? 'YES' : 'NO'}`);
+});
+
+// Connect to DB in background
+connectDB().catch(err => {
+  console.error('⚠ Database connection failed:', err.message);
 });
 
 module.exports = app;
