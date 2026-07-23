@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ticketAPI } from '../services/api';
 import { getStatusColor, getPriorityColor, getCategoryColor, LIGHT_MODE, DARK_MODE } from '../theme/palette';
 import '../styles/dashboard.css';
 
-const Dashboard = () => {
+const Dashboard = ({ onLogout }) => {
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -76,6 +78,11 @@ const Dashboard = () => {
     closed: tickets.filter(t => t.status === 'closed').length,
   };
 
+  const handleLogout = () => {
+    if (onLogout) onLogout();
+    navigate('/login');
+  };
+
   return (
     <div className="container">
       {/* Header */}
@@ -84,6 +91,9 @@ const Dashboard = () => {
           <h1>🏨 HotelFlow Dashboard</h1>
           <p className="subtitle">Intelligent Guest Communication Management</p>
         </div>
+        <button onClick={handleLogout} className="logoutButton">
+          Logout
+        </button>
       </div>
 
       {/* Stats */}
