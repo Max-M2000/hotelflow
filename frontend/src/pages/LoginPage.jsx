@@ -21,7 +21,8 @@ const LoginPage = ({ onLogin }) => {
       return;
     }
 
-    // Simulate login (in real app, would call backend)
+    // Accept any email/password for demo
+    // In production, would validate against backend
     setTimeout(() => {
       onLogin(email, password);
       navigate('/');
