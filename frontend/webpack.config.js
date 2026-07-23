@@ -1,11 +1,16 @@
 const path = require('path');
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 module.exports = {
-  mode: 'development',
+  mode: isProduction ? 'production' : 'development',
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
+  },
+  resolve: {
+    extensions: ['.js', '.jsx'],
   },
   module: {
     rules: [
@@ -16,6 +21,7 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             presets: ['@babel/preset-react'],
+            cacheDirectory: true,
           },
         },
       },
@@ -33,5 +39,9 @@ module.exports = {
         target: 'http://localhost:3001',
       },
     ],
+  },
+  performance: {
+    maxEntrypointSize: 512000,
+    maxAssetSize: 512000,
   },
 };
