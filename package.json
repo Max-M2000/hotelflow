@@ -2,10 +2,9 @@
   "name": "hotelflow",
   "private": true,
   "description": "Email to Ticket Automation for Hotels",
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build"
+  },
   "dependencies": {
     "google-auth-library": "^10.9.0",
     "googleapis": "^173.0.0",
