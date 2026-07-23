@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { ticketAPI } from '../services/api';
+import { getStatusColor, getPriorityColor, getCategoryColor, LIGHT_MODE, DARK_MODE } from '../theme/palette';
+import styles from './Dashboard.module.css';
 
 const Dashboard = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filter, setFilter] = useState('all');
+  const [isDark, setIsDark] = useState(() => {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
 
   useEffect(() => {
     const loadTickets = async () => {
@@ -20,6 +26,12 @@ const Dashboard = () => {
     };
 
     loadTickets();
+
+    // Listen for dark mode changes
+    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleDarkModeChange = (e) => setIsDark(e.matches);
+    darkModeQuery.addEventListener('change', handleDarkModeChange);
+    return () => darkModeQuery.removeEventListener('change', handleDarkModeChange);
   }, []);
 
   const handleStatusChange = async (ticketId, newStatus) => {
@@ -31,49 +43,165 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  // Filter tickets
+  const filteredTickets = filter === 'all'
+    ? tickets
+    : tickets.filter(t => t.status === filter);
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loadingState}>
+          <div className={styles.spinner}></div>
+          <p>Loading tickets...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.errorState}>
+          <p>❌ Error: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const statusCounts = {
+    all: tickets.length,
+    open: tickets.filter(t => t.status === 'open').length,
+    in_progress: tickets.filter(t => t.status === 'in_progress').length,
+    closed: tickets.filter(t => t.status === 'closed').length,
+  };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>HotelFlow Dashboard</h1>
-      <p>Total tickets: {tickets.length}</p>
+    <div className={styles.container}>
+      {/* Header */}
+      <div className={styles.header}>
+        <div>
+          <h1>🏨 HotelFlow Dashboard</h1>
+          <p className={styles.subtitle}>Intelligent Guest Communication Management</p>
+        </div>
+      </div>
 
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ backgroundColor: '#f0f0f0', borderBottom: '2px solid #ccc' }}>
-            <th style={{ padding: '10px', textAlign: 'left' }}>Guest</th>
-            <th style={{ padding: '10px', textAlign: 'left' }}>Subject</th>
-            <th style={{ padding: '10px', textAlign: 'left' }}>Category</th>
-            <th style={{ padding: '10px', textAlign: 'left' }}>Priority</th>
-            <th style={{ padding: '10px', textAlign: 'left' }}>Status</th>
-            <th style={{ padding: '10px', textAlign: 'left' }}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tickets.map(ticket => (
-            <tr key={ticket._id} style={{ borderBottom: '1px solid #eee' }}>
-              <td style={{ padding: '10px' }}>{ticket.guestName}</td>
-              <td style={{ padding: '10px' }}>{ticket.subject}</td>
-              <td style={{ padding: '10px' }}>{ticket.category}</td>
-              <td style={{ padding: '10px' }}>{ticket.priority}</td>
-              <td style={{ padding: '10px' }}>
-                <select
-                  value={ticket.status}
-                  onChange={(e) => handleStatusChange(ticket._id, e.target.value)}
-                >
-                  <option value="open">Open</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="closed">Closed</option>
-                </select>
-              </td>
-              <td style={{ padding: '10px' }}>
-                <a href={`/ticket/${ticket._id}`}>View</a>
-              </td>
+      {/* Stats */}
+      <div className={styles.stats}>
+        <div className={styles.statTile}>
+          <div className={styles.statNumber}>{statusCounts.all}</div>
+          <div className={styles.statLabel}>Total Tickets</div>
+        </div>
+        <div className={styles.statTile} style={{ borderTopColor: getStatusColor('open', isDark) }}>
+          <div className={styles.statNumber}>{statusCounts.open}</div>
+          <div className={styles.statLabel}>Open</div>
+        </div>
+        <div className={styles.statTile} style={{ borderTopColor: getStatusColor('in_progress', isDark) }}>
+          <div className={styles.statNumber}>{statusCounts.in_progress}</div>
+          <div className={styles.statLabel}>In Progress</div>
+        </div>
+        <div className={styles.statTile} style={{ borderTopColor: getStatusColor('closed', isDark) }}>
+          <div className={styles.statNumber}>{statusCounts.closed}</div>
+          <div className={styles.statLabel}>Closed</div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className={styles.filterBar}>
+        <label htmlFor="status-filter">Filter by Status:</label>
+        <select
+          id="status-filter"
+          className={styles.filterSelect}
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+        >
+          <option value="all">All Tickets ({statusCounts.all})</option>
+          <option value="open">Open ({statusCounts.open})</option>
+          <option value="in_progress">In Progress ({statusCounts.in_progress})</option>
+          <option value="closed">Closed ({statusCounts.closed})</option>
+        </select>
+      </div>
+
+      {/* Tickets Table */}
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Guest</th>
+              <th>Subject</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredTickets.length === 0 ? (
+              <tr>
+                <td colSpan="6" className={styles.emptyState}>
+                  No tickets in this status
+                </td>
+              </tr>
+            ) : (
+              filteredTickets.map(ticket => (
+                <tr key={ticket._id} className={styles.ticketRow}>
+                  <td>
+                    <div className={styles.guestCell}>
+                      <div className={styles.guestName}>{ticket.guestName}</div>
+                      <div className={styles.guestEmail}>{ticket.guestEmail}</div>
+                    </div>
+                  </td>
+                  <td>
+                    <div className={styles.subjectCell}>{ticket.subject}</div>
+                  </td>
+                  <td>
+                    <span
+                      className={styles.badge}
+                      style={{
+                        backgroundColor: getCategoryColor(ticket.category, isDark),
+                        color: isDark ? '#1e1e1e' : '#ffffff'
+                      }}
+                    >
+                      {ticket.category}
+                    </span>
+                  </td>
+                  <td>
+                    <span
+                      className={styles.priorityBadge}
+                      style={{
+                        backgroundColor: getPriorityColor(ticket.priority, isDark),
+                        color: isDark ? '#1e1e1e' : '#ffffff'
+                      }}
+                    >
+                      {ticket.priority}
+                    </span>
+                  </td>
+                  <td>
+                    <select
+                      className={styles.statusSelect}
+                      style={{
+                        borderLeftColor: getStatusColor(ticket.status, isDark),
+                        color: getStatusColor(ticket.status, isDark),
+                      }}
+                      value={ticket.status}
+                      onChange={(e) => handleStatusChange(ticket._id, e.target.value)}
+                    >
+                      <option value="open">● Open</option>
+                      <option value="in_progress">⟳ In Progress</option>
+                      <option value="closed">✓ Closed</option>
+                    </select>
+                  </td>
+                  <td>
+                    <a href={`/ticket/${ticket._id}`} className={styles.viewLink}>
+                      View →
+                    </a>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
