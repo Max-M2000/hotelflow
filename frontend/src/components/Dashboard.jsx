@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ticketAPI } from '../services/api';
 import { getStatusColor, getPriorityColor, getCategoryColor, LIGHT_MODE, DARK_MODE } from '../theme/palette';
-import './Dashboard.module.css';
+import '../styles/dashboard.css';
 
 const Dashboard = () => {
   const [tickets, setTickets] = useState([]);
