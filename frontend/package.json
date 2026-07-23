@@ -1,0 +1,28 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack serve",
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.18.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@babel/preset-react": "^8.0.1",
+    "babel-loader": "^10.1.1",
+    "css-loader": "^7.1.4",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.108.4",
+    "webpack-cli": "^7.2.1",
+    "webpack-dev-server": "^6.0.0"
+  }
+}
