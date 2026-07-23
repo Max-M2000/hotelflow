@@ -1,6 +1,42 @@
 const express = require('express');
 const router = express.Router();
 const Ticket = require('../models/Ticket');
+const { processIncomingEmail } = require('../services/emailIngestService');
+
+// POST /api/ingest-email - Full pipeline: Email → Categorize → Route → Create Ticket
+router.post('/ingest-email', async (req, res) => {
+  try {
+    const { emailId, from, subject, body } = req.body;
+
+    // Validate required fields
+    if (!emailId || !from || !subject || !body) {
+      return res.status(400).json({
+        error: 'Missing required fields: emailId, from, subject, body',
+      });
+    }
+
+    // Process email through full pipeline
+    const ticket = await processIncomingEmail({
+      emailId,
+      from,
+      subject,
+      body,
+    });
+
+    res.status(201).json({
+      success: true,
+      ticket,
+      pipeline: {
+        step1: 'Categorized by AI',
+        step2: 'Routed to team',
+        step3: 'Guest extracted',
+        step4: 'Ticket created',
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // GET /api/tickets - List all tickets
 router.get('/tickets', async (req, res) => {

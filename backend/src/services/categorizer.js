@@ -1,8 +1,18 @@
 const OpenAI = require('openai');
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openai;
+
+/**
+ * Get or create OpenAI instance (lazy loading)
+ */
+const getOpenAIClient = () => {
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || 'sk-test-dummy',
+    });
+  }
+  return openai;
+};
 
 /**
  * Use OpenAI to categorize an email
@@ -11,6 +21,7 @@ const openai = new OpenAI({
  * @returns {Object} { category, priority, sentiment }
  */
 const categorizeEmail = async (subject, body) => {
+  const client = getOpenAIClient();
   const prompt = `
 Analyze this hotel guest email and categorize it:
 
@@ -32,7 +43,7 @@ Rules:
 `;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await client.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.3,
