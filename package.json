@@ -3,7 +3,7 @@
   "private": true,
   "description": "Email to Ticket Automation for Hotels",
   "scripts": {
-    "build": "cd frontend && npm install && npm run build"
+    "build": "npm --prefix frontend install && npm --prefix frontend run build && npm --prefix . exec -- cp -r frontend/dist/* ."
   },
   "dependencies": {
     "google-auth-library": "^10.9.0",
