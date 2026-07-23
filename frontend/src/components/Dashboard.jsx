@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ticketAPI } from '../services/api';
 import { getStatusColor, getPriorityColor, getCategoryColor, LIGHT_MODE, DARK_MODE } from '../theme/palette';
-import styles from './Dashboard.module.css';
+import './Dashboard.module.css';
 
 const Dashboard = () => {
   const [tickets, setTickets] = useState([]);
@@ -50,9 +50,9 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loadingState}>
-          <div className={styles.spinner}></div>
+      <div className="container">
+        <div className="loadingState">
+          <div className="spinner"></div>
           <p>Loading tickets...</p>
         </div>
       </div>
@@ -61,8 +61,8 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div className={styles.container}>
-        <div className={styles.errorState}>
+      <div className="container">
+        <div className="errorState">
           <p>❌ Error: {error}</p>
         </div>
       </div>
@@ -77,41 +77,41 @@ const Dashboard = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div className="container">
       {/* Header */}
-      <div className={styles.header}>
+      <div className="header">
         <div>
           <h1>🏨 HotelFlow Dashboard</h1>
-          <p className={styles.subtitle}>Intelligent Guest Communication Management</p>
+          <p className="subtitle">Intelligent Guest Communication Management</p>
         </div>
       </div>
 
       {/* Stats */}
-      <div className={styles.stats}>
-        <div className={styles.statTile}>
-          <div className={styles.statNumber}>{statusCounts.all}</div>
-          <div className={styles.statLabel}>Total Tickets</div>
+      <div className="stats">
+        <div className="statTile">
+          <div className="statNumber">{statusCounts.all}</div>
+          <div className="statLabel">Total Tickets</div>
         </div>
-        <div className={styles.statTile} style={{ borderTopColor: getStatusColor('open', isDark) }}>
-          <div className={styles.statNumber}>{statusCounts.open}</div>
-          <div className={styles.statLabel}>Open</div>
+        <div className="statTile" style={{ borderTopColor: getStatusColor('open', isDark) }}>
+          <div className="statNumber">{statusCounts.open}</div>
+          <div className="statLabel">Open</div>
         </div>
-        <div className={styles.statTile} style={{ borderTopColor: getStatusColor('in_progress', isDark) }}>
-          <div className={styles.statNumber}>{statusCounts.in_progress}</div>
-          <div className={styles.statLabel}>In Progress</div>
+        <div className="statTile" style={{ borderTopColor: getStatusColor('in_progress', isDark) }}>
+          <div className="statNumber">{statusCounts.in_progress}</div>
+          <div className="statLabel">In Progress</div>
         </div>
-        <div className={styles.statTile} style={{ borderTopColor: getStatusColor('closed', isDark) }}>
-          <div className={styles.statNumber}>{statusCounts.closed}</div>
-          <div className={styles.statLabel}>Closed</div>
+        <div className="statTile" style={{ borderTopColor: getStatusColor('closed', isDark) }}>
+          <div className="statNumber">{statusCounts.closed}</div>
+          <div className="statLabel">Closed</div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className={styles.filterBar}>
+      <div className="filterBar">
         <label htmlFor="status-filter">Filter by Status:</label>
         <select
           id="status-filter"
-          className={styles.filterSelect}
+          className="filterSelect"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         >
@@ -123,8 +123,8 @@ const Dashboard = () => {
       </div>
 
       {/* Tickets Table */}
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
+      <div className="tableWrapper">
+        <table className="table">
           <thead>
             <tr>
               <th>Guest</th>
@@ -138,25 +138,25 @@ const Dashboard = () => {
           <tbody>
             {filteredTickets.length === 0 ? (
               <tr>
-                <td colSpan="6" className={styles.emptyState}>
+                <td colSpan="6" className="emptyState">
                   No tickets in this status
                 </td>
               </tr>
             ) : (
               filteredTickets.map(ticket => (
-                <tr key={ticket._id} className={styles.ticketRow}>
+                <tr key={ticket._id} className="ticketRow">
                   <td>
-                    <div className={styles.guestCell}>
-                      <div className={styles.guestName}>{ticket.guestName}</div>
-                      <div className={styles.guestEmail}>{ticket.guestEmail}</div>
+                    <div className="guestCell">
+                      <div className="guestName">{ticket.guestName}</div>
+                      <div className="guestEmail">{ticket.guestEmail}</div>
                     </div>
                   </td>
                   <td>
-                    <div className={styles.subjectCell}>{ticket.subject}</div>
+                    <div className="subjectCell">{ticket.subject}</div>
                   </td>
                   <td>
                     <span
-                      className={styles.badge}
+                      className="badge"
                       style={{
                         backgroundColor: getCategoryColor(ticket.category, isDark),
                         color: isDark ? '#1e1e1e' : '#ffffff'
@@ -167,7 +167,7 @@ const Dashboard = () => {
                   </td>
                   <td>
                     <span
-                      className={styles.priorityBadge}
+                      className="priorityBadge"
                       style={{
                         backgroundColor: getPriorityColor(ticket.priority, isDark),
                         color: isDark ? '#1e1e1e' : '#ffffff'
@@ -178,7 +178,7 @@ const Dashboard = () => {
                   </td>
                   <td>
                     <select
-                      className={styles.statusSelect}
+                      className="statusSelect"
                       style={{
                         borderLeftColor: getStatusColor(ticket.status, isDark),
                         color: getStatusColor(ticket.status, isDark),
@@ -192,7 +192,7 @@ const Dashboard = () => {
                     </select>
                   </td>
                   <td>
-                    <a href={`/ticket/${ticket._id}`} className={styles.viewLink}>
+                    <a href={`/ticket/${ticket._id}`} className="viewLink">
                       View →
                     </a>
                   </td>
