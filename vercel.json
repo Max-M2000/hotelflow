@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/dist",
+  "env": {
+    "REACT_APP_API_URL": "https://hotelflow-production-738f.up.railway.app/api"
+  }
+}
