@@ -21,13 +21,20 @@ const LoginPage = ({ onLogin }) => {
       return;
     }
 
-    // Accept any email/password for demo
-    // In production, would validate against backend
-    setTimeout(() => {
-      onLogin(email, password);
-      navigate('/');
+    // Admin account for demo
+    const adminEmail = 'admin@hotelflow.com';
+    const adminPassword = 'hotelflow123';
+
+    if (email === adminEmail && password === adminPassword) {
+      setTimeout(() => {
+        onLogin(email, password);
+        navigate('/');
+        setLoading(false);
+      }, 500);
+    } else {
+      setError('Invalid credentials. Use admin@hotelflow.com / hotelflow123');
       setLoading(false);
-    }, 500);
+    }
   };
 
   return (
