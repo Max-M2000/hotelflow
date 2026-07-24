@@ -59,6 +59,16 @@ describe('normalizeInboundEmail', () => {
     expect(out.emailId).toBe('cm-42');
   });
 
+  test('strips HTML from an HTML-only body', async () => {
+    const out = await normalizeInboundEmail({
+      from: 'gast@web.de',
+      subject: 'Frage',
+      html: "<html><body><div style=\"font-size:12px\">Hallo, <b>ist</b> Frühstück inklusive?</div></body></html>",
+    });
+    expect(out.text).not.toMatch(/<[^>]+>/);
+    expect(out.text).toContain('Frühstück inklusive');
+  });
+
   test('Generic / manual test payload', async () => {
     const out = await normalizeInboundEmail({
       from: 'Lisa <lisa@web.de>',
