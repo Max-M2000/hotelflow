@@ -8,36 +8,43 @@
 
 **Project:** HotelFlow
 **Generated:** 2026-07-24 09:40:47
+**Last Updated:** 2026-07-24 (superseded palette/typography below after Skill re-query + Max approval)
 **Category:** Event Management
 **Design Dials:** Variance 6/10 (Balanced / Modern) | Motion 5/10 (Standard) | Density 8/10 (Dense / Dashboard)
 
 ---
 
-## Global Rules
+## Global Rules (CURRENT — as implemented)
 
-### Color Palette
+### Color Palette (Skill: `--domain color`, product type "B2B Service")
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#1E3A8A` | `--color-primary` |
-| On Primary | `#FFFFFF` | `--color-on-primary` |
-| Secondary | `#3B82F6` | `--color-secondary` |
-| Accent/CTA | `#A16207` | `--color-accent` |
-| Background | `#F8FAFC` | `--color-background` |
-| Foreground | `#1E40AF` | `--color-foreground` |
-| Muted | `#E9EEF5` | `--color-muted` |
-| Border | `#BFDBFE` | `--color-border` |
-| Destructive | `#DC2626` | `--color-destructive` |
-| Ring | `#1E3A8A` | `--color-ring` |
+| Primary | `#0F172A` | `--text` |
+| Accent/CTA | `#0369A1` | `--accent` |
+| Background | `#F8FAFC` | `--bg` |
+| Surface | `#FFFFFF` | `--surface` |
+| Muted | `#E8ECF1` | `--surface-3` |
+| Border | `#E2E8F0` | `--border` |
+| Destructive | `#DC2626` | `--red-fg` |
 
-**Color Notes:** Luxury navy + gold service [Accent adjusted from #CA8A04 for WCAG 3:1]
+**Color Notes:** Navy-slate + professional blue CTA. Replaced initial "Luxury navy + gold" palette after side-by-side comparison — Max found gold accent too "startup/vibrant"; slate+blue reads more enterprise/trustworthy. Full token list in `frontend/src/styles/app.css`.
 
-### Typography
+### Typography (Skill: `--domain typography`, pairing "Minimal Swiss")
 
-- **Heading Font:** Fira Code
-- **Body Font:** Fira Sans
-- **Mood:** dashboard, data, analytics, code, technical, precise
-- **Google Fonts:** [Fira Code + Fira Sans](https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap)
+- **Heading Font:** Inter
+- **Body Font:** Inter
+- **Mood:** minimal, clean, swiss, functional, neutral, professional
+- **Best For:** Dashboards, admin panels, documentation, enterprise apps
+- **Google Fonts:** [Inter](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap)
+- **Note:** Replaced initial "Fira Code + Fira Sans" (Dashboard Data pairing) — Inter reads cleaner for this density/complexity level.
+
+### Layout Pattern (Skill: `--domain style`, "Executive Dashboard" + "Swiss Modernism 2.0")
+
+- Sidebar navigation (not top nav) — `frontend/src/components/Layout.jsx`
+- 4 KPI stat cards max, tinted status pills (not solid badges)
+- Single accent color throughout, high contrast text
+- SVG icons only (Lucide-style, see `frontend/src/components/Icons.jsx`) — no emoji
 
 **CSS Import:**
 ```css
