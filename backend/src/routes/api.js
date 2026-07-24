@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Ticket = require('../models/Ticket');
+const RoutingRule = require('../models/RoutingRule');
 const { processIncomingEmail } = require('../services/emailIngestService');
 const { normalizeInboundEmail } = require('../services/inboundParser');
 
@@ -160,6 +161,69 @@ router.post('/tickets/:id/notes', async (req, res) => {
     }
 
     res.json(ticket);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== Routing Rules =====
+
+// GET /api/routing-rules - list all rules
+router.get('/routing-rules', async (req, res) => {
+  try {
+    const rules = await RoutingRule.find().sort({ createdAt: 1 });
+    res.json(rules);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/routing-rules - create a rule
+router.post('/routing-rules', async (req, res) => {
+  try {
+    const { category, priority, sentiment, assignTo, active } = req.body;
+    if (!category || !assignTo) {
+      return res.status(400).json({ error: 'category and assignTo are required' });
+    }
+    const rule = await RoutingRule.create({
+      category,
+      priority: priority || undefined,
+      sentiment: sentiment || undefined,
+      assignTo,
+      active: active !== false,
+    });
+    res.status(201).json(rule);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// DELETE /api/routing-rules/:id - delete a rule
+router.delete('/routing-rules/:id', async (req, res) => {
+  try {
+    const removed = await RoutingRule.findByIdAndDelete(req.params.id);
+    if (!removed) return res.status(404).json({ error: 'Rule not found' });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/routing-rules/seed-defaults - create sensible defaults (only if none exist)
+router.post('/routing-rules/seed-defaults', async (req, res) => {
+  try {
+    const existing = await RoutingRule.countDocuments();
+    if (existing > 0) {
+      return res.status(200).json({ success: true, skipped: true, message: 'Rules already exist', count: existing });
+    }
+    const defaults = [
+      { category: 'complaint', assignTo: 'Management' },
+      { category: 'booking', assignTo: 'Reservierung' },
+      { category: 'inquiry', assignTo: 'Rezeption' },
+      { category: 'other', assignTo: 'Rezeption' },
+    ];
+    const created = await RoutingRule.insertMany(defaults);
+    res.status(201).json({ success: true, created: created.length, rules: created });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
