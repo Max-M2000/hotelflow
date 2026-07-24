@@ -91,6 +91,18 @@ const normalizeInboundEmail = async (payload) => {
     });
   }
 
+  // 3.5) CloudMailin (JSON normalized): headers object + plain body + envelope
+  if (payload.envelope || typeof payload.plain === 'string' || payload.headers) {
+    const h = payload.headers || {};
+    const cm = build({
+      from: h.From || h.from || payload.envelope?.from,
+      subject: h.Subject || h.subject,
+      text: payload.plain || payload.reply_plain || payload.html,
+      emailId: h['Message-ID'] || h['Message-Id'] || h['message-id'],
+    });
+    if (cm) return cm;
+  }
+
   // 4) Generic / SendGrid Inbound Parse / manual test
   return build({
     from: payload.from,

@@ -46,6 +46,19 @@ describe('normalizeInboundEmail', () => {
     expect(out.emailId).toBe('mg-9');
   });
 
+  test('CloudMailin JSON (headers + plain + envelope)', async () => {
+    const out = await normalizeInboundEmail({
+      envelope: { from: 'gast@web.de', to: 'hotel@cloudmailin.net' },
+      headers: { From: 'Gast Mueller <gast@web.de>', Subject: 'Spätes Einchecken', 'Message-ID': 'cm-42' },
+      plain: 'Kann ich um 23 Uhr einchecken?',
+    });
+    expect(out.from).toBe('gast@web.de');
+    expect(out.fromName).toBe('Gast Mueller');
+    expect(out.subject).toBe('Spätes Einchecken');
+    expect(out.text).toContain('23 Uhr');
+    expect(out.emailId).toBe('cm-42');
+  });
+
   test('Generic / manual test payload', async () => {
     const out = await normalizeInboundEmail({
       from: 'Lisa <lisa@web.de>',
