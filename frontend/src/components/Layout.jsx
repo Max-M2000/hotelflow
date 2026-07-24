@@ -34,6 +34,7 @@ const Layout = ({ children, onLogout }) => {
           <button
             className={`nav-item ${isTickets ? 'nav-item-active' : ''}`}
             onClick={() => navigate('/')}
+            aria-current={isTickets ? 'page' : undefined}
           >
             <IconInbox size={18} />
             <span>Tickets</span>
@@ -62,7 +63,7 @@ const Layout = ({ children, onLogout }) => {
               <div className="user-name">Admin</div>
               <div className="user-email">{userEmail}</div>
             </div>
-            <button className="logout-btn" onClick={handleLogout} title="Abmelden">
+            <button className="logout-btn" onClick={handleLogout} title="Abmelden" aria-label="Abmelden">
               <IconLogout size={17} />
             </button>
           </div>

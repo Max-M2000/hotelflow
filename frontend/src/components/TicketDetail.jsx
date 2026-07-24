@@ -153,6 +153,7 @@ const TicketDetail = () => {
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
                 placeholder="Notiz oder Bearbeitungsvermerk hinzufügen…"
+                aria-label="Neue interne Notiz"
                 className="note-input"
                 rows="2"
               />
@@ -184,22 +185,23 @@ const TicketDetail = () => {
           <div className="card side-card">
             <div className="card-title">Bearbeitung</div>
 
-            <label className="field-label">Status</label>
-            <select className="field-select" value={ticket.status} onChange={(e) => updateField('status', e.target.value)}>
+            <label className="field-label" htmlFor="field-status">Status</label>
+            <select id="field-status" className="field-select" value={ticket.status} onChange={(e) => updateField('status', e.target.value)}>
               <option value="open">Offen</option>
               <option value="in_progress">In Bearbeitung</option>
               <option value="closed">Geschlossen</option>
             </select>
 
-            <label className="field-label">Priorität</label>
-            <select className="field-select" value={ticket.priority} onChange={(e) => updateField('priority', e.target.value)}>
+            <label className="field-label" htmlFor="field-priority">Priorität</label>
+            <select id="field-priority" className="field-select" value={ticket.priority} onChange={(e) => updateField('priority', e.target.value)}>
               <option value="high">Hoch</option>
               <option value="medium">Mittel</option>
               <option value="low">Niedrig</option>
             </select>
 
-            <label className="field-label">Zugewiesenes Team</label>
+            <label className="field-label" htmlFor="field-team">Zugewiesenes Team</label>
             <input
+              id="field-team"
               className="field-input"
               type="text"
               defaultValue={ticket.assignedTo || ''}

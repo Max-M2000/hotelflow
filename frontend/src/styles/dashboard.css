@@ -43,6 +43,14 @@
   padding: 18px 18px 20px;
   cursor: pointer;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  /* button reset (semantic button for keyboard a11y) */
+  width: 100%;
+  display: block;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .stat-card:hover {
@@ -258,6 +266,28 @@
   padding: 48px 16px !important;
   color: var(--text-3);
   font-size: 14px;
+}
+
+.empty-title {
+  margin-bottom: 12px;
+  color: var(--text-2);
+}
+
+.empty-action {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--accent-text);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.empty-action:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
 }
 
 /* Guest */

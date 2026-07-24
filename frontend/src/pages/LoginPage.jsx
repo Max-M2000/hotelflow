@@ -10,6 +10,7 @@ const LoginPage = ({ onLogin }) => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -71,21 +72,32 @@ const LoginPage = ({ onLogin }) => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@ospitara.com"
                 autoComplete="username"
+                autoFocus
               />
             </div>
             <div className="auth-field">
               <label htmlFor="password">Passwort</label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                autoComplete="current-password"
-              />
+              <div className="password-wrap">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
+                >
+                  {showPassword ? 'Verbergen' : 'Anzeigen'}
+                </button>
+              </div>
             </div>
 
-            {error && <div className="auth-error">{error}</div>}
+            {error && <div className="auth-error" role="alert">{error}</div>}
 
             <button type="submit" disabled={loading} className="auth-submit">
               {loading ? 'Anmelden…' : 'Anmelden'}

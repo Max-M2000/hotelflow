@@ -108,17 +108,20 @@ const Dashboard = () => {
       {/* Stat cards */}
       <div className="stat-grid">
         {stats.map((s) => (
-          <div
+          <button
             key={s.key}
+            type="button"
             className={`stat-card ${statusFilter === s.key ? 'stat-card-active' : ''}`}
-            onClick={() => setStatusFilter(s.key === 'all' ? 'all' : s.key)}
+            onClick={() => setStatusFilter(s.key)}
+            aria-pressed={statusFilter === s.key}
+            aria-label={`Filter ${s.label}: ${loading ? '–' : s.value} Tickets`}
           >
             <div className="stat-top">
               <span className="stat-label">{s.label}</span>
               <span className={`stat-icon tone-${s.tone}`}><s.Icon size={16} /></span>
             </div>
             <div className="stat-value">{loading ? '–' : s.value}</div>
-          </div>
+          </button>
         ))}
       </div>
 
@@ -133,8 +136,10 @@ const Dashboard = () => {
           ].map(([val, label]) => (
             <button
               key={val}
+              type="button"
               className={`seg-btn ${statusFilter === val ? 'seg-btn-active' : ''}`}
               onClick={() => setStatusFilter(val)}
+              aria-pressed={statusFilter === val}
             >
               {label}
             </button>
@@ -144,19 +149,20 @@ const Dashboard = () => {
         <div className="toolbar-right">
           <input
             className="search-input"
-            type="text"
+            type="search"
             placeholder="Suchen…"
+            aria-label="Tickets durchsuchen"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <select className="select" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+          <select className="select" aria-label="Nach Kategorie filtern" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
             <option value="all">Alle Kategorien</option>
             <option value="complaint">Beschwerde</option>
             <option value="inquiry">Anfrage</option>
             <option value="booking">Buchung</option>
             <option value="other">Sonstiges</option>
           </select>
-          <select className="select" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
+          <select className="select" aria-label="Nach Priorität filtern" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
             <option value="all">Alle Prioritäten</option>
             <option value="high">Hoch</option>
             <option value="medium">Mittel</option>
@@ -191,7 +197,23 @@ const Dashboard = () => {
               {loading ? (
                 <tr><td colSpan="7" className="tbl-empty"><div className="spinner" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan="7" className="tbl-empty">Keine Tickets mit diesen Filtern.</td></tr>
+                <tr>
+                  <td colSpan="7" className="tbl-empty">
+                    <div className="empty-title">Keine Tickets mit diesen Filtern</div>
+                    <button
+                      type="button"
+                      className="empty-action"
+                      onClick={() => {
+                        setStatusFilter('all');
+                        setCategoryFilter('all');
+                        setPriorityFilter('all');
+                        setSearch('');
+                      }}
+                    >
+                      Filter zurücksetzen
+                    </button>
+                  </td>
+                </tr>
               ) : (
                 filtered.map((t) => {
                   const cat = CATEGORY[t.category] || CATEGORY.other;
@@ -199,7 +221,20 @@ const Dashboard = () => {
                   const sent = SENTIMENT[t.sentiment] || SENTIMENT.neutral;
                   const CatIcon = cat.Icon;
                   return (
-                    <tr key={t._id} className="tbl-row" onClick={() => navigate(`/ticket/${t._id}`)}>
+                    <tr
+                      key={t._id}
+                      className="tbl-row"
+                      onClick={() => navigate(`/ticket/${t._id}`)}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`Ticket öffnen: ${t.guestName} – ${t.subject}`}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          navigate(`/ticket/${t._id}`);
+                        }
+                      }}
+                    >
                       <td>
                         <div className="guest">
                           <span className={`avatar ${tintFor(t.guestName)}`}>
@@ -227,10 +262,11 @@ const Dashboard = () => {
                         </span>
                       </td>
                       <td><span className="team">{t.assignedTo || '—'}</span></td>
-                      <td onClick={(e) => e.stopPropagation()}>
+                      <td onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                         <div className={`status-select-wrap tint-${STATUS[t.status]?.cls || 'gray'}`}>
                           <select
                             className="status-select"
+                            aria-label={`Status ändern für Ticket von ${t.guestName}`}
                             value={t.status}
                             onChange={(e) => handleStatusChange(t._id, e.target.value, e)}
                           >
