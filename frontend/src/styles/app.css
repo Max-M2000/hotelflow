@@ -1,4 +1,93 @@
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ============================================================
+   HotelFlow Design System v2 — Premium SaaS
+   Neutrals: cool gray  |  Accent: refined indigo
+   ============================================================ */
+
+:root {
+  /* Neutrals */
+  --bg: #FAFBFC;
+  --surface: #FFFFFF;
+  --surface-2: #F6F7F9;
+  --surface-3: #F0F2F5;
+  --border: #ECEEF1;
+  --border-strong: #E1E4E8;
+
+  /* Text */
+  --text: #14161A;
+  --text-2: #5B616E;
+  --text-3: #8A909C;
+
+  /* Accent (indigo) */
+  --accent: #4F46E5;
+  --accent-hover: #4338CA;
+  --accent-soft: #EEF0FF;
+  --accent-soft-2: #E5E8FF;
+  --accent-text: #4338CA;
+
+  /* Semantic tints (bg + fg) */
+  --blue-bg: #EFF4FF;   --blue-fg: #2563EB;
+  --amber-bg: #FFF6E9;  --amber-fg: #B45309;
+  --green-bg: #E9FaEF;  --green-fg: #05875A;
+  --red-bg: #FEF1F1;    --red-fg: #DC2626;
+  --gray-bg: #F1F3F5;   --gray-fg: #616875;
+  --violet-bg: #F4F0FF; --violet-fg: #6D28D9;
+
+  /* Status dots */
+  --dot-positive: #10B981;
+  --dot-neutral: #9AA1AC;
+  --dot-negative: #EF4444;
+
+  /* Shadows — soft, premium */
+  --shadow-xs: 0 1px 2px rgba(20, 22, 26, 0.04);
+  --shadow-sm: 0 1px 3px rgba(20, 22, 26, 0.06), 0 1px 2px rgba(20, 22, 26, 0.04);
+  --shadow-md: 0 6px 16px rgba(20, 22, 26, 0.08);
+  --shadow-lg: 0 16px 40px rgba(20, 22, 26, 0.12);
+
+  /* Radius */
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+
+  /* Font */
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0C0D10;
+    --surface: #151619;
+    --surface-2: #1B1D21;
+    --surface-3: #212429;
+    --border: #262930;
+    --border-strong: #31353D;
+
+    --text: #F2F3F5;
+    --text-2: #A3A9B5;
+    --text-3: #6E7480;
+
+    --accent: #6366F1;
+    --accent-hover: #7C7EF5;
+    --accent-soft: #1E2033;
+    --accent-soft-2: #262A45;
+    --accent-text: #A5B0FF;
+
+    --blue-bg: #10203A;   --blue-fg: #7FB0FF;
+    --amber-bg: #2A1F0C;  --amber-fg: #F0B857;
+    --green-bg: #0C2A1E;  --green-fg: #4ADE9A;
+    --red-bg: #2C1416;    --red-fg: #FF8A8A;
+    --gray-bg: #212429;   --gray-fg: #A3A9B5;
+    --violet-bg: #201636; --violet-fg: #C4A5FF;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+  }
+}
 
 * {
   margin: 0;
@@ -6,86 +95,66 @@
   box-sizing: border-box;
 }
 
-:root {
-  /* Colors (from ui-ux-pro-max Design System) */
-  --color-primary: #1E3A8A;
-  --color-on-primary: #FFFFFF;
-  --color-secondary: #3B82F6;
-  --color-accent: #A16207;
-  --color-background: #F8FAFC;
-  --color-foreground: #1E40AF;
-  --color-muted: #E9EEF5;
-  --color-border: #BFDBFE;
-  --color-destructive: #DC2626;
-  --color-ring: #1E3A8A;
-
-  /* Surfaces & Text (Soft UI Evolution) */
-  --color-surface: #FFFFFF;
-  --color-surface-secondary: #F8FAFC;
-  --color-text: #1E293B;
-  --color-text-secondary: #475569;
-  --color-text-tertiary: #94A3B8;
-
-  /* Status Colors */
-  --color-status-open: #3B82F6;
-  --color-status-in-progress: #F59E0B;
-  --color-status-closed: #10B981;
-
-  /* Interactive */
-  --color-hover: #F1F5F9;
-  --color-focus: #1E3A8A;
-  --color-focus-ring: #DBEAFE;
-
-  /* Shadows (Soft UI) */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
-
-  /* Typography (Fira Code + Fira Sans) */
-  --font-heading: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-body: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Dark Mode Colors */
-    --color-primary: #3B82F6;
-    --color-secondary: #60A5FA;
-    --color-accent: #F59E0B;
-    --color-background: #0F172A;
-    --color-foreground: #93C5FD;
-    --color-muted: #1E293B;
-    --color-border: #1E3A8A;
-    --color-destructive: #F87171;
-    --color-ring: #3B82F6;
-
-    /* Dark Surfaces & Text */
-    --color-surface: #1E293B;
-    --color-surface-secondary: #334155;
-    --color-text: #F1F5F9;
-    --color-text-secondary: #CBD5E1;
-    --color-text-tertiary: #94A3B8;
-
-    /* Dark Status Colors */
-    --color-status-open: #60A5FA;
-    --color-status-in-progress: #FCD34D;
-    --color-status-closed: #34D399;
-
-    /* Dark Interactive */
-    --color-hover: #475569;
-    --color-focus: #60A5FA;
-    --color-focus-ring: #1E3A8A;
-  }
-}
-
 html, body, #root {
   height: 100%;
-  background-color: var(--color-surface);
-  color: var(--color-text);
 }
 
 body {
-  font-family: var(--font-body);
+  font-family: var(--font);
+  background-color: var(--bg);
+  color: var(--text);
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--accent-soft-2);
+  color: var(--accent-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   Shared primitives (used on multiple pages)
+   ============================================================ */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tint-red { background: var(--red-bg); color: var(--red-fg); }
+.tint-green { background: var(--green-bg); color: var(--green-fg); }
+.tint-blue { background: var(--blue-bg); color: var(--blue-fg); }
+.tint-amber { background: var(--amber-bg); color: var(--amber-fg); }
+.tint-gray { background: var(--gray-bg); color: var(--gray-fg); }
+.tint-violet { background: var(--violet-bg); color: var(--violet-fg); }
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.dot-positive { background: var(--dot-positive); }
+.dot-neutral { background: var(--dot-neutral); }
+.dot-negative { background: var(--dot-negative); }

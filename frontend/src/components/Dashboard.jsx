@@ -2,18 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ticketAPI } from '../services/api';
 import {
-  getStatusColor,
-  getPriorityColor,
-  getCategoryColor,
-  getSentimentColor,
-  CATEGORY_LABELS,
-  PRIORITY_LABELS,
-  STATUS_LABELS,
-  SENTIMENT_LABELS,
-} from '../theme/palette';
+  IconInbox, IconCircle, IconClock, IconCheck,
+  IconAlert, IconCalendar, IconHelp, IconDots,
+} from './Icons';
 import '../styles/dashboard.css';
 
-const Dashboard = ({ onLogout }) => {
+const CATEGORY = {
+  complaint: { label: 'Beschwerde', cls: 'red', Icon: IconAlert },
+  booking: { label: 'Buchung', cls: 'green', Icon: IconCalendar },
+  inquiry: { label: 'Anfrage', cls: 'blue', Icon: IconHelp },
+  other: { label: 'Sonstiges', cls: 'gray', Icon: IconDots },
+};
+const PRIORITY = {
+  high: { label: 'Hoch', cls: 'red' },
+  medium: { label: 'Mittel', cls: 'amber' },
+  low: { label: 'Niedrig', cls: 'gray' },
+};
+const STATUS = {
+  open: { label: 'Offen', cls: 'blue' },
+  in_progress: { label: 'In Bearbeitung', cls: 'amber' },
+  closed: { label: 'Geschlossen', cls: 'green' },
+};
+const SENTIMENT = {
+  positive: { label: 'Zufrieden', cls: 'positive' },
+  neutral: { label: 'Neutral', cls: 'neutral' },
+  negative: { label: 'Unzufrieden', cls: 'negative' },
+};
+
+const AVATAR_TINTS = ['a1', 'a2', 'a3', 'a4', 'a5'];
+const tintFor = (str = '') =>
+  AVATAR_TINTS[[...str].reduce((s, c) => s + c.charCodeAt(0), 0) % AVATAR_TINTS.length];
+
+const Dashboard = () => {
   const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,17 +41,10 @@ const Dashboard = ({ onLogout }) => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
-  const [isDark, setIsDark] = useState(() =>
-    window.matchMedia('(prefers-color-scheme: dark)').matches
-  );
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     loadTickets();
-
-    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleDarkModeChange = (e) => setIsDark(e.matches);
-    darkModeQuery.addEventListener('change', handleDarkModeChange);
-    return () => darkModeQuery.removeEventListener('change', handleDarkModeChange);
   }, []);
 
   const loadTickets = async () => {
@@ -51,181 +64,189 @@ const Dashboard = ({ onLogout }) => {
     e.stopPropagation();
     try {
       const updated = await ticketAPI.updateTicket(ticketId, { status: newStatus });
-      setTickets(tickets.map((t) => (t._id === ticketId ? updated : t)));
+      setTickets((prev) => prev.map((t) => (t._id === ticketId ? updated : t)));
     } catch (err) {
       setError(err.message);
     }
   };
 
-  const handleLogout = () => {
-    if (onLogout) onLogout();
-    navigate('/login');
-  };
-
-  // Apply all filters
-  const filteredTickets = tickets.filter((t) => {
+  const filtered = tickets.filter((t) => {
     if (statusFilter !== 'all' && t.status !== statusFilter) return false;
     if (categoryFilter !== 'all' && t.category !== categoryFilter) return false;
     if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      const hay = `${t.guestName} ${t.guestEmail} ${t.subject}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
     return true;
   });
 
-  const statusCounts = {
+  const counts = {
     all: tickets.length,
     open: tickets.filter((t) => t.status === 'open').length,
     in_progress: tickets.filter((t) => t.status === 'in_progress').length,
     closed: tickets.filter((t) => t.status === 'closed').length,
   };
 
-  if (loading) {
-    return (
-      <div className="container">
-        <div className="loadingState">
-          <div className="spinner"></div>
-          <p>Tickets werden geladen…</p>
-        </div>
-      </div>
-    );
-  }
+  const stats = [
+    { key: 'all', label: 'Tickets gesamt', value: counts.all, Icon: IconInbox, tone: 'accent' },
+    { key: 'open', label: 'Offen', value: counts.open, Icon: IconCircle, tone: 'blue' },
+    { key: 'in_progress', label: 'In Bearbeitung', value: counts.in_progress, Icon: IconClock, tone: 'amber' },
+    { key: 'closed', label: 'Geschlossen', value: counts.closed, Icon: IconCheck, tone: 'green' },
+  ];
 
   return (
-    <div className="container">
-      {/* Header */}
-      <div className="header">
+    <div className="page">
+      <header className="page-head">
         <div>
-          <h1>🏨 HotelFlow</h1>
-          <p className="subtitle">Gästeanfragen automatisch als Tickets — kategorisiert, priorisiert, geroutet</p>
+          <h1 className="page-title">Tickets</h1>
+          <p className="page-sub">Gästeanfragen — automatisch kategorisiert, priorisiert und geroutet</p>
         </div>
-        <button onClick={handleLogout} className="logoutButton">
-          Abmelden
-        </button>
+      </header>
+
+      {/* Stat cards */}
+      <div className="stat-grid">
+        {stats.map((s) => (
+          <div
+            key={s.key}
+            className={`stat-card ${statusFilter === s.key ? 'stat-card-active' : ''}`}
+            onClick={() => setStatusFilter(s.key === 'all' ? 'all' : s.key)}
+          >
+            <div className="stat-top">
+              <span className="stat-label">{s.label}</span>
+              <span className={`stat-icon tone-${s.tone}`}><s.Icon size={16} /></span>
+            </div>
+            <div className="stat-value">{loading ? '–' : s.value}</div>
+          </div>
+        ))}
       </div>
 
-      {error && (
-        <div className="errorState" style={{ marginBottom: 24 }}>
-          ⚠️ Fehler: {error}
-          <button onClick={loadTickets} className="retryButton">Erneut versuchen</button>
+      {/* Toolbar */}
+      <div className="toolbar">
+        <div className="segmented">
+          {[
+            ['all', 'Alle'],
+            ['open', 'Offen'],
+            ['in_progress', 'In Bearbeitung'],
+            ['closed', 'Geschlossen'],
+          ].map(([val, label]) => (
+            <button
+              key={val}
+              className={`seg-btn ${statusFilter === val ? 'seg-btn-active' : ''}`}
+              onClick={() => setStatusFilter(val)}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-      )}
 
-      {/* Stats */}
-      <div className="stats">
-        <div className="statTile">
-          <div className="statNumber">{statusCounts.all}</div>
-          <div className="statLabel">Tickets gesamt</div>
-        </div>
-        <div className="statTile" style={{ borderTopColor: getStatusColor('open', isDark) }}>
-          <div className="statNumber">{statusCounts.open}</div>
-          <div className="statLabel">Offen</div>
-        </div>
-        <div className="statTile" style={{ borderTopColor: getStatusColor('in_progress', isDark) }}>
-          <div className="statNumber">{statusCounts.in_progress}</div>
-          <div className="statLabel">In Bearbeitung</div>
-        </div>
-        <div className="statTile" style={{ borderTopColor: getStatusColor('closed', isDark) }}>
-          <div className="statNumber">{statusCounts.closed}</div>
-          <div className="statLabel">Geschlossen</div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="filterBar">
-        <div className="filterGroup">
-          <label>Status</label>
-          <select className="filterSelect" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-            <option value="all">Alle</option>
-            <option value="open">Offen</option>
-            <option value="in_progress">In Bearbeitung</option>
-            <option value="closed">Geschlossen</option>
-          </select>
-        </div>
-        <div className="filterGroup">
-          <label>Kategorie</label>
-          <select className="filterSelect" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-            <option value="all">Alle</option>
+        <div className="toolbar-right">
+          <input
+            className="search-input"
+            type="text"
+            placeholder="Suchen…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select className="select" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+            <option value="all">Alle Kategorien</option>
             <option value="complaint">Beschwerde</option>
             <option value="inquiry">Anfrage</option>
             <option value="booking">Buchung</option>
             <option value="other">Sonstiges</option>
           </select>
-        </div>
-        <div className="filterGroup">
-          <label>Priorität</label>
-          <select className="filterSelect" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
-            <option value="all">Alle</option>
+          <select className="select" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
+            <option value="all">Alle Prioritäten</option>
             <option value="high">Hoch</option>
             <option value="medium">Mittel</option>
             <option value="low">Niedrig</option>
           </select>
         </div>
-        <div className="filterResult">{filteredTickets.length} angezeigt</div>
       </div>
 
-      {/* Tickets Table */}
-      <div className="tableWrapper">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Gast</th>
-              <th>Betreff</th>
-              <th>Kategorie</th>
-              <th>Priorität</th>
-              <th>Stimmung</th>
-              <th>Team</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredTickets.length === 0 ? (
+      {error && (
+        <div className="banner-error">
+          Fehler beim Laden: {error}
+          <button onClick={loadTickets} className="banner-retry">Erneut versuchen</button>
+        </div>
+      )}
+
+      {/* Table card */}
+      <div className="table-card">
+        <div className="table-scroll">
+          <table className="tbl">
+            <thead>
               <tr>
-                <td colSpan="7" className="emptyState">
-                  Keine Tickets mit diesen Filtern
-                </td>
+                <th>Gast</th>
+                <th>Betreff</th>
+                <th>Kategorie</th>
+                <th>Priorität</th>
+                <th>Stimmung</th>
+                <th>Team</th>
+                <th>Status</th>
               </tr>
-            ) : (
-              filteredTickets.map((ticket) => (
-                <tr key={ticket._id} className="ticketRow" onClick={() => navigate(`/ticket/${ticket._id}`)}>
-                  <td>
-                    <div className="guestCell">
-                      <div className="guestName">{ticket.guestName}</div>
-                      <div className="guestEmail">{ticket.guestEmail}</div>
-                    </div>
-                  </td>
-                  <td><div className="subjectCell">{ticket.subject}</div></td>
-                  <td>
-                    <span className="badge" style={{ backgroundColor: getCategoryColor(ticket.category, isDark) }}>
-                      {CATEGORY_LABELS[ticket.category] || ticket.category}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="badge" style={{ backgroundColor: getPriorityColor(ticket.priority, isDark) }}>
-                      {PRIORITY_LABELS[ticket.priority] || ticket.priority}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="sentimentDot" style={{ color: getSentimentColor(ticket.sentiment, isDark) }}>
-                      ● {SENTIMENT_LABELS[ticket.sentiment] || '—'}
-                    </span>
-                  </td>
-                  <td><span className="teamCell">{ticket.assignedTo || '—'}</span></td>
-                  <td>
-                    <select
-                      className="statusSelect"
-                      style={{ borderLeftColor: getStatusColor(ticket.status, isDark), color: getStatusColor(ticket.status, isDark) }}
-                      value={ticket.status}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => handleStatusChange(ticket._id, e.target.value, e)}
-                    >
-                      <option value="open">● Offen</option>
-                      <option value="in_progress">⟳ In Bearbeitung</option>
-                      <option value="closed">✓ Geschlossen</option>
-                    </select>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan="7" className="tbl-empty"><div className="spinner" /></td></tr>
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan="7" className="tbl-empty">Keine Tickets mit diesen Filtern.</td></tr>
+              ) : (
+                filtered.map((t) => {
+                  const cat = CATEGORY[t.category] || CATEGORY.other;
+                  const prio = PRIORITY[t.priority] || PRIORITY.medium;
+                  const sent = SENTIMENT[t.sentiment] || SENTIMENT.neutral;
+                  const CatIcon = cat.Icon;
+                  return (
+                    <tr key={t._id} className="tbl-row" onClick={() => navigate(`/ticket/${t._id}`)}>
+                      <td>
+                        <div className="guest">
+                          <span className={`avatar ${tintFor(t.guestName)}`}>
+                            {(t.guestName || '?').charAt(0).toUpperCase()}
+                          </span>
+                          <div className="guest-text">
+                            <div className="guest-name">{t.guestName}</div>
+                            <div className="guest-mail">{t.guestEmail}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="subject-cell">
+                        <div className="subject">{t.subject}</div>
+                        <div className="snippet">{(t.body || '').slice(0, 60)}{(t.body || '').length > 60 ? '…' : ''}</div>
+                      </td>
+                      <td>
+                        <span className={`pill tint-${cat.cls}`}><CatIcon size={13} />{cat.label}</span>
+                      </td>
+                      <td>
+                        <span className={`pill tint-${prio.cls}`}>{prio.label}</span>
+                      </td>
+                      <td>
+                        <span className="sentiment">
+                          <span className={`dot dot-${sent.cls}`} />{sent.label}
+                        </span>
+                      </td>
+                      <td><span className="team">{t.assignedTo || '—'}</span></td>
+                      <td onClick={(e) => e.stopPropagation()}>
+                        <div className={`status-select-wrap tint-${STATUS[t.status]?.cls || 'gray'}`}>
+                          <select
+                            className="status-select"
+                            value={t.status}
+                            onChange={(e) => handleStatusChange(t._id, e.target.value, e)}
+                          >
+                            <option value="open">Offen</option>
+                            <option value="in_progress">In Bearbeitung</option>
+                            <option value="closed">Geschlossen</option>
+                          </select>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
