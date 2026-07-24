@@ -16,7 +16,7 @@ const { extractGuestName } = require('./emailParser');
  * @returns {Object} Created ticket with all enriched data
  */
 const processIncomingEmail = async (emailData) => {
-  const { emailId, from, subject, body } = emailData;
+  const { emailId, from, subject, body, guestName: providedName } = emailData;
 
   console.log(`[Ingest] Processing email: ${emailId} from ${from}`);
 
@@ -30,9 +30,9 @@ const processIncomingEmail = async (emailData) => {
   const assignedTo = await routeTicket(category, priority, sentiment);
   console.log(`[Ingest] Assigned to: ${assignedTo}`);
 
-  // Step 3: Extract guest info
-  console.log(`[Ingest] Extracting guest name...`);
-  const guestName = extractGuestName(from);
+  // Step 3: Guest name — prefer the display name from the email header,
+  // fall back to deriving it from the address.
+  const guestName = (providedName && providedName.trim()) || extractGuestName(from);
   console.log(`[Ingest] Guest: ${guestName}`);
 
   // Step 4: Create ticket in database
