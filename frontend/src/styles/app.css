@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -5,29 +7,75 @@
 }
 
 :root {
-  --color-surface: #ffffff;
-  --color-surface-secondary: #f8f9fa;
-  --color-text: #1a1a1a;
-  --color-text-secondary: #666666;
-  --color-border: #e0e0e0;
-  --color-hover: #f5f5f5;
-  --color-focus: #0066cc;
-  --color-status-open: #0066cc;
-  --color-status-in-progress: #ff9800;
-  --color-status-closed: #4caf50;
+  /* Colors (from ui-ux-pro-max Design System) */
+  --color-primary: #1E3A8A;
+  --color-on-primary: #FFFFFF;
+  --color-secondary: #3B82F6;
+  --color-accent: #A16207;
+  --color-background: #F8FAFC;
+  --color-foreground: #1E40AF;
+  --color-muted: #E9EEF5;
+  --color-border: #BFDBFE;
+  --color-destructive: #DC2626;
+  --color-ring: #1E3A8A;
+
+  /* Surfaces & Text (Soft UI Evolution) */
+  --color-surface: #FFFFFF;
+  --color-surface-secondary: #F8FAFC;
+  --color-text: #1E293B;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #94A3B8;
+
+  /* Status Colors */
+  --color-status-open: #3B82F6;
+  --color-status-in-progress: #F59E0B;
+  --color-status-closed: #10B981;
+
+  /* Interactive */
+  --color-hover: #F1F5F9;
+  --color-focus: #1E3A8A;
+  --color-focus-ring: #DBEAFE;
+
+  /* Shadows (Soft UI) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+  /* Typography (Fira Code + Fira Sans) */
+  --font-heading: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-body: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-surface: #1e1e1e;
-    --color-surface-secondary: #2d2d2d;
-    --color-text: #ffffff;
-    --color-text-secondary: #b0b0b0;
-    --color-border: #3a3a3a;
-    --color-hover: #333333;
-    --color-status-open: #4da6ff;
-    --color-status-in-progress: #ffb74d;
-    --color-status-closed: #66bb6a;
+    /* Dark Mode Colors */
+    --color-primary: #3B82F6;
+    --color-secondary: #60A5FA;
+    --color-accent: #F59E0B;
+    --color-background: #0F172A;
+    --color-foreground: #93C5FD;
+    --color-muted: #1E293B;
+    --color-border: #1E3A8A;
+    --color-destructive: #F87171;
+    --color-ring: #3B82F6;
+
+    /* Dark Surfaces & Text */
+    --color-surface: #1E293B;
+    --color-surface-secondary: #334155;
+    --color-text: #F1F5F9;
+    --color-text-secondary: #CBD5E1;
+    --color-text-tertiary: #94A3B8;
+
+    /* Dark Status Colors */
+    --color-status-open: #60A5FA;
+    --color-status-in-progress: #FCD34D;
+    --color-status-closed: #34D399;
+
+    /* Dark Interactive */
+    --color-hover: #475569;
+    --color-focus: #60A5FA;
+    --color-focus-ring: #1E3A8A;
   }
 }
 
@@ -38,6 +86,6 @@ html, body, #root {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   line-height: 1.5;
 }

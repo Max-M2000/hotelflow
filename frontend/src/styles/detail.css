@@ -42,7 +42,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -168,7 +168,7 @@
 .noteButton {
   align-self: flex-start;
   padding: 10px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%);
   color: white;
   border: none;
   border-radius: 6px;
@@ -176,11 +176,13 @@
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-family: var(--font-body);
 }
 
 .noteButton:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: var(--shadow-lg);
+  opacity: 0.95;
 }
 
 .noteButton:disabled {
