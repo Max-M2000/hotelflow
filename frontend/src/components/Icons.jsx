@@ -18,8 +18,8 @@ export const IconLogo = ({ size = 26 }) => (
     <path d="M11 22V10M21 22V10M11 16h10" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" />
     <defs>
       <linearGradient id="hf-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#6366F1" />
-        <stop offset="1" stopColor="#8B5CF6" />
+        <stop stopColor="#0EA5E9" />
+        <stop offset="1" stopColor="#0369A1" />
       </linearGradient>
     </defs>
   </svg>

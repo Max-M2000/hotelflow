@@ -6,25 +6,25 @@
    ============================================================ */
 
 :root {
-  /* Neutrals */
-  --bg: #FAFBFC;
+  /* Neutrals — Skill "B2B Service" (Slate) */
+  --bg: #F8FAFC;
   --surface: #FFFFFF;
-  --surface-2: #F6F7F9;
-  --surface-3: #F0F2F5;
-  --border: #ECEEF1;
-  --border-strong: #E1E4E8;
+  --surface-2: #F1F5F9;
+  --surface-3: #E8ECF1;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
 
   /* Text */
-  --text: #14161A;
-  --text-2: #5B616E;
-  --text-3: #8A909C;
+  --text: #0F172A;
+  --text-2: #64748B;
+  --text-3: #94A3B8;
 
-  /* Accent (indigo) */
-  --accent: #4F46E5;
-  --accent-hover: #4338CA;
-  --accent-soft: #EEF0FF;
-  --accent-soft-2: #E5E8FF;
-  --accent-text: #4338CA;
+  /* Accent — professional blue #0369A1 (Skill B2B Service CTA) */
+  --accent: #0369A1;
+  --accent-hover: #075985;
+  --accent-soft: #E0F2FE;
+  --accent-soft-2: #BAE6FD;
+  --accent-text: #075985;
 
   /* Semantic tints (bg + fg) */
   --blue-bg: #EFF4FF;   --blue-fg: #2563EB;
@@ -58,22 +58,22 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0C0D10;
-    --surface: #151619;
-    --surface-2: #1B1D21;
-    --surface-3: #212429;
-    --border: #262930;
-    --border-strong: #31353D;
+    --bg: #0B1120;
+    --surface: #131C2E;
+    --surface-2: #1A2437;
+    --surface-3: #212D44;
+    --border: #26324A;
+    --border-strong: #35425C;
 
-    --text: #F2F3F5;
-    --text-2: #A3A9B5;
-    --text-3: #6E7480;
+    --text: #E2E8F0;
+    --text-2: #94A3B8;
+    --text-3: #64748B;
 
-    --accent: #6366F1;
-    --accent-hover: #7C7EF5;
-    --accent-soft: #1E2033;
-    --accent-soft-2: #262A45;
-    --accent-text: #A5B0FF;
+    --accent: #0EA5E9;
+    --accent-hover: #38BDF8;
+    --accent-soft: #0C2A3E;
+    --accent-soft-2: #123449;
+    --accent-text: #7DD3FC;
 
     --blue-bg: #10203A;   --blue-fg: #7FB0FF;
     --amber-bg: #2A1F0C;  --amber-fg: #F0B857;
