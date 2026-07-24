@@ -6,7 +6,7 @@ import '../styles/layout.css';
 const Layout = ({ children, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const userEmail = localStorage.getItem('hotelflow_user') || 'admin@hotelflow.com';
+  const userEmail = localStorage.getItem('hotelflow_user') || 'admin@ospitara.com';
   const initials = userEmail.charAt(0).toUpperCase();
 
   const isTickets = location.pathname === '/' || location.pathname.startsWith('/ticket');
@@ -19,10 +19,15 @@ const Layout = ({ children, onLogout }) => {
   return (
     <div className="shell">
       <aside className="sidebar">
-        <div className="sidebar-brand" onClick={() => navigate('/')}>
+        <button
+          type="button"
+          className="sidebar-brand"
+          onClick={() => navigate('/')}
+          aria-label="Ospitara – zur Übersicht"
+        >
           <IconLogo />
-          <span className="brand-name">HotelFlow</span>
-        </div>
+          <span className="brand-name">Ospitara</span>
+        </button>
 
         <nav className="sidebar-nav">
           <div className="nav-section-label">Arbeitsbereich</div>

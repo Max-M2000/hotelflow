@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { IconLogo, IconInbox, IconAlert, IconCheck } from '../components/Icons';
 import '../styles/auth.css';
 
-const DEMO_EMAIL = 'admin@hotelflow.com';
+const DEMO_EMAIL = 'admin@ospitara.com';
 const DEMO_PASSWORD = 'demo123';
 
 const LoginPage = ({ onLogin }) => {
@@ -38,7 +38,7 @@ const LoginPage = ({ onLogin }) => {
         <div className="auth-brand-top">
           <div className="auth-logo">
             <IconLogo size={30} />
-            <span>HotelFlow</span>
+            <span>Ospitara</span>
           </div>
         </div>
         <div className="auth-brand-mid">
@@ -58,7 +58,7 @@ const LoginPage = ({ onLogin }) => {
         <div className="auth-card">
           <div className="auth-card-head">
             <h1>Willkommen zurück</h1>
-            <p>Melde dich in deinem HotelFlow-Dashboard an</p>
+            <p>Melde dich in deinem Ospitara-Dashboard an</p>
           </div>
 
           <form onSubmit={handleSubmit} className="auth-form">
@@ -69,7 +69,7 @@ const LoginPage = ({ onLogin }) => {
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@hotelflow.com"
+                placeholder="admin@ospitara.com"
                 autoComplete="username"
               />
             </div>
@@ -94,7 +94,7 @@ const LoginPage = ({ onLogin }) => {
 
           <div className="auth-demo">
             <div className="auth-demo-label">Demo-Zugang</div>
-            <code>admin@hotelflow.com · demo123</code>
+            <code>admin@ospitara.com · demo123</code>
             <button type="button" onClick={fillDemo} className="auth-demo-btn">Einsetzen</button>
           </div>
         </div>

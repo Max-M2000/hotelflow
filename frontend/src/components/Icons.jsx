@@ -12,16 +12,13 @@ const base = (size = 18) => ({
   strokeLinejoin: 'round',
 });
 
+// Ospitara brand mark: a speech-bubble "O" (guest communication). Solid brand blue,
+// no gradient (per brand skill: flat = reproducible + mono-safe + high contrast).
 export const IconLogo = ({ size = 26 }) => (
-  <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-    <rect width="32" height="32" rx="8" fill="url(#hf-grad)" />
-    <path d="M11 22V10M21 22V10M11 16h10" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" />
-    <defs>
-      <linearGradient id="hf-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#0EA5E9" />
-        <stop offset="1" stopColor="#0369A1" />
-      </linearGradient>
-    </defs>
+  <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    <rect width="32" height="32" rx="8" fill="#0369A1" />
+    <circle cx="16" cy="14.6" r="6.1" fill="none" stroke="#fff" strokeWidth="2.8" />
+    <path d="M11.6 18.6 L7.9 23.9 L14.9 20.2 Z" fill="#fff" />
   </svg>
 );
 
