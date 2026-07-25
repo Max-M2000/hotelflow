@@ -31,6 +31,10 @@ const getTransporter = () => {
     port,
     secure: port === 465, // 465 = implicit SSL, 587 = STARTTLS
     auth: { user, pass },
+    // Fail fast instead of hanging forever if the port is blocked / host unreachable.
+    connectionTimeout: 12000, // max time to establish TCP connection
+    greetingTimeout: 12000,   // max time to wait for SMTP greeting
+    socketTimeout: 20000,     // max idle time on the socket
   });
 
   return cachedTransporter;
