@@ -39,4 +39,10 @@ export const ticketAPI = {
     const response = await api.post(`/tickets/${id}/notes`, { author, text });
     return response.data;
   },
+
+  // Send an email reply to the guest
+  replyToTicket: async (id, { subject, body, author }) => {
+    const response = await api.post(`/tickets/${id}/reply`, { subject, body, author });
+    return response.data;
+  },
 };

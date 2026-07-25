@@ -4,6 +4,7 @@ const Ticket = require('../models/Ticket');
 const RoutingRule = require('../models/RoutingRule');
 const { processIncomingEmail } = require('../services/emailIngestService');
 const { normalizeInboundEmail } = require('../services/inboundParser');
+const { sendReply } = require('../services/mailer');
 
 // POST /api/inbound/email - Provider-agnostic inbound webhook (Channel #1)
 // Receives forwarded emails from an inbound-parse service (Postmark/Mailgun/
@@ -162,6 +163,63 @@ router.post('/tickets/:id/notes', async (req, res) => {
 
     res.json(ticket);
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/tickets/:id/reply - Send an email reply to the guest
+router.post('/tickets/:id/reply', async (req, res) => {
+  try {
+    const { subject, body, author } = req.body;
+
+    if (!body || !body.trim()) {
+      return res.status(400).json({ error: 'Reply body is required' });
+    }
+
+    const ticket = await Ticket.findById(req.params.id);
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+    if (!ticket.guestEmail) {
+      return res.status(400).json({ error: 'Ticket has no guest email address' });
+    }
+
+    const finalSubject =
+      (subject && subject.trim()) || `Re: ${ticket.subject}`;
+
+    // Thread into the guest's original conversation when we have a real Message-ID.
+    const inReplyTo =
+      ticket.emailId && ticket.emailId.includes('@') ? ticket.emailId : undefined;
+
+    let result;
+    try {
+      result = await sendReply({
+        to: ticket.guestEmail,
+        subject: finalSubject,
+        body: body.trim(),
+        inReplyTo,
+      });
+    } catch (mailErr) {
+      console.error('[Reply] Mail send failed:', mailErr.message);
+      return res.status(502).json({ error: `E-Mail-Versand fehlgeschlagen: ${mailErr.message}` });
+    }
+
+    ticket.replies.push({
+      author: author || 'Mitarbeiter',
+      to: ticket.guestEmail,
+      subject: finalSubject,
+      body: body.trim(),
+      messageId: result.messageId,
+    });
+    // First reply moves an open ticket into "in progress".
+    if (ticket.status === 'open') ticket.status = 'in_progress';
+    ticket.updatedAt = new Date();
+    await ticket.save();
+
+    console.log(`[Reply] ✅ Sent to ${ticket.guestEmail} (ticket ${ticket._id})`);
+    res.json(ticket);
+  } catch (error) {
+    console.error('[Reply] Error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });

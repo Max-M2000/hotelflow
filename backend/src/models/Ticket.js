@@ -35,6 +35,16 @@ const ticketSchema = new mongoose.Schema(
         createdAt: { type: Date, default: Date.now },
       },
     ],
+    replies: [
+      {
+        author: String,
+        to: String,
+        subject: String,
+        body: String,
+        messageId: String,
+        sentAt: { type: Date, default: Date.now },
+      },
+    ],
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },

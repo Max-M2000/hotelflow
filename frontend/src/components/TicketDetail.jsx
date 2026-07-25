@@ -29,6 +29,11 @@ const TicketDetail = () => {
   const [error, setError] = useState(null);
   const [noteText, setNoteText] = useState('');
   const [savingNote, setSavingNote] = useState(false);
+  const [replyBody, setReplyBody] = useState('');
+  const [replySubject, setReplySubject] = useState('');
+  const [sendingReply, setSendingReply] = useState(false);
+  const [replyError, setReplyError] = useState(null);
+  const [replySuccess, setReplySuccess] = useState(false);
 
   useEffect(() => {
     loadTicket();
@@ -69,6 +74,30 @@ const TicketDetail = () => {
       setError(err.message);
     } finally {
       setSavingNote(false);
+    }
+  };
+
+  const handleSendReply = async (e) => {
+    e.preventDefault();
+    if (!replyBody.trim()) return;
+    setSendingReply(true);
+    setReplyError(null);
+    setReplySuccess(false);
+    try {
+      const user = localStorage.getItem('hotelflow_user') || 'Mitarbeiter';
+      const updated = await ticketAPI.replyToTicket(id, {
+        subject: replySubject.trim() || `Re: ${ticket.subject}`,
+        body: replyBody.trim(),
+        author: user,
+      });
+      setTicket(updated);
+      setReplyBody('');
+      setReplySubject('');
+      setReplySuccess(true);
+    } catch (err) {
+      setReplyError(err.response?.data?.error || err.message);
+    } finally {
+      setSendingReply(false);
     }
   };
 
@@ -124,6 +153,60 @@ const TicketDetail = () => {
               </div>
             </div>
             <div className="email-body">{ticket.body}</div>
+          </div>
+
+          <div className="card reply-card">
+            <div className="card-title">
+              Dem Gast antworten
+              {ticket.replies?.length > 0 && (
+                <span className="count-badge">{ticket.replies.length}</span>
+              )}
+            </div>
+
+            {ticket.replies && ticket.replies.length > 0 && (
+              <div className="reply-list">
+                {ticket.replies.map((r, i) => (
+                  <div key={i} className="reply-sent">
+                    <div className="reply-meta">
+                      <span className="reply-author">{r.author}</span>
+                      <span className="reply-arrow">→ {r.to}</span>
+                      <span className="note-date">{formatDate(r.sentAt)}</span>
+                    </div>
+                    <div className="reply-subject">{r.subject}</div>
+                    <div className="reply-text">{r.body}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <form onSubmit={handleSendReply} className="reply-form">
+              <label className="field-label" htmlFor="reply-subject">Betreff</label>
+              <input
+                id="reply-subject"
+                className="field-input"
+                type="text"
+                value={replySubject}
+                onChange={(e) => setReplySubject(e.target.value)}
+                placeholder={`Re: ${ticket.subject}`}
+              />
+
+              <label className="field-label" htmlFor="reply-body">Nachricht an {ticket.guestEmail}</label>
+              <textarea
+                id="reply-body"
+                value={replyBody}
+                onChange={(e) => setReplyBody(e.target.value)}
+                placeholder="Antwort an den Gast verfassen…"
+                className="note-input"
+                rows="5"
+              />
+
+              {replyError && <div className="banner-error" role="alert">{replyError}</div>}
+              {replySuccess && <div className="banner-success" role="status">Antwort gesendet ✅</div>}
+
+              <button type="submit" disabled={sendingReply || !replyBody.trim()} className="btn-primary">
+                <IconSend size={15} /> {sendingReply ? 'Senden…' : 'Antwort senden'}
+              </button>
+            </form>
           </div>
 
           <div className="card notes-card">
