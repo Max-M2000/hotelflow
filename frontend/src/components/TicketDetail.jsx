@@ -21,6 +21,28 @@ const SENTIMENT = {
   negative: { label: 'Unzufrieden', cls: 'negative' },
 };
 
+// Quick-insert reply templates for the most common guest questions.
+const TEMPLATES = [
+  { label: 'Begrüßung', build: (name) => `Guten Tag${name ? ' ' + name : ''},\n\nvielen Dank für Ihre Nachricht.\n\n` },
+  { label: 'Check-in/-out', build: () => 'Unser Check-in ist ab 15:00 Uhr, der Check-out bis 11:00 Uhr möglich. Ein späterer Check-in ist nach Absprache jederzeit möglich – unsere Rezeption ist rund um die Uhr besetzt.\n\n' },
+  { label: 'Parkplatz', build: () => 'Direkt am Hotel stehen Ihnen kostenfreie Parkplätze zur Verfügung, eine Reservierung ist nicht erforderlich.\n\n' },
+  { label: 'WLAN', build: () => 'In allen Zimmern und öffentlichen Bereichen steht Ihnen kostenfreies WLAN zur Verfügung.\n\n' },
+  { label: 'Grußformel', build: () => 'Bei weiteren Fragen stehen wir Ihnen jederzeit gern zur Verfügung.\n\nHerzliche Grüße\nIhr Ospitara-Team' },
+];
+
+const relativeTime = (d) => {
+  if (!d) return '';
+  const mins = Math.floor((Date.now() - new Date(d).getTime()) / 60000);
+  if (mins < 1) return 'gerade eben';
+  if (mins < 60) return `vor ${mins} Min`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `vor ${hrs} Std`;
+  const days = Math.floor(hrs / 24);
+  if (days === 1) return 'gestern';
+  if (days < 7) return `vor ${days} Tagen`;
+  return `vor ${Math.floor(days / 7)} Wo`;
+};
+
 const TicketDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -75,6 +97,13 @@ const TicketDetail = () => {
     } finally {
       setSavingNote(false);
     }
+  };
+
+  const insertTemplate = (text) => {
+    setReplyBody((prev) => {
+      if (!prev.trim()) return text;
+      return prev.endsWith('\n') ? prev + text : prev + '\n' + text;
+    });
   };
 
   const handleSendReply = async (e) => {
@@ -137,7 +166,7 @@ const TicketDetail = () => {
         <div className="detail-meta">
           <span className={`pill tint-${cat.cls}`}><CatIcon size={13} />{cat.label}</span>
           <span className={`pill tint-${prio.cls}`}>Priorität: {prio.label}</span>
-          <span className="detail-date">{formatDate(ticket.createdAt)}</span>
+          <span className="detail-date">{formatDate(ticket.createdAt)} · {relativeTime(ticket.createdAt)}</span>
         </div>
       </div>
 
@@ -191,6 +220,19 @@ const TicketDetail = () => {
               />
 
               <label className="field-label" htmlFor="reply-body">Nachricht an {ticket.guestEmail}</label>
+              <div className="tpl-row" role="group" aria-label="Antwort-Vorlagen einfügen">
+                <span className="tpl-label">Vorlagen:</span>
+                {TEMPLATES.map((tpl) => (
+                  <button
+                    key={tpl.label}
+                    type="button"
+                    className="tpl-btn"
+                    onClick={() => insertTemplate(tpl.build((ticket.guestName || '').split(' ')[0]))}
+                  >
+                    {tpl.label}
+                  </button>
+                ))}
+              </div>
               <textarea
                 id="reply-body"
                 value={replyBody}

@@ -276,6 +276,40 @@
   margin-top: 4px;
 }
 
+/* Reply templates */
+.tpl-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 2px 0 2px;
+}
+
+.tpl-label {
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 500;
+  margin-right: 2px;
+}
+
+.tpl-btn {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+  border-radius: 20px;
+  padding: 5px 11px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tpl-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-text);
+  background: var(--accent-soft);
+}
+
 .reply-list {
   display: flex;
   flex-direction: column;

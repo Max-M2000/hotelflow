@@ -110,15 +110,7 @@
   flex-shrink: 0;
 }
 
-/* Fill colors */
-.fill-red { background: var(--red-fg); }
-.fill-green { background: var(--green-fg); }
-.fill-blue { background: var(--blue-fg); }
-.fill-gray { background: var(--gray-fg); }
-.fill-accent { background: var(--accent); }
-.fill-positive { background: var(--dot-positive); }
-.fill-neutral { background: var(--dot-neutral); }
-.fill-negative { background: var(--dot-negative); }
+/* (fill-* colors live globally in app.css) */
 
 /* States */
 .reports-loading {

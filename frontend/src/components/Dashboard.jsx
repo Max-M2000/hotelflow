@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ticketAPI } from '../services/api';
 import {
-  IconInbox, IconCircle, IconClock, IconCheck,
+  IconInbox, IconCircle, IconClock, IconCheck, IconRefresh,
   IconAlert, IconCalendar, IconHelp, IconDots,
 } from './Icons';
 import '../styles/dashboard.css';
@@ -28,28 +28,55 @@ const SENTIMENT = {
   neutral: { label: 'Neutral', cls: 'neutral' },
   negative: { label: 'Unzufrieden', cls: 'negative' },
 };
+const PRANK = { high: 0, medium: 1, low: 2 };
+const OVERDUE_HRS = 24;
 
 const AVATAR_TINTS = ['a1', 'a2', 'a3', 'a4', 'a5'];
 const tintFor = (str = '') =>
   AVATAR_TINTS[[...str].reduce((s, c) => s + c.charCodeAt(0), 0) % AVATAR_TINTS.length];
 
+// ----- Ticket state helpers (as a hotel thinks about them) -----
+const hasReply = (t) => Array.isArray(t.replies) && t.replies.length > 0;
+const isWaiting = (t) => t.status !== 'closed' && !hasReply(t);
+const ageMs = (t) => Date.now() - new Date(t.createdAt).getTime();
+const isOverdue = (t) => isWaiting(t) && ageMs(t) > OVERDUE_HRS * 3600 * 1000;
+
+const relativeTime = (d) => {
+  if (!d) return '';
+  const mins = Math.floor((Date.now() - new Date(d).getTime()) / 60000);
+  if (mins < 1) return 'gerade eben';
+  if (mins < 60) return `vor ${mins} Min`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `vor ${hrs} Std`;
+  const days = Math.floor(hrs / 24);
+  if (days === 1) return 'gestern';
+  if (days < 7) return `vor ${days} Tagen`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `vor ${weeks} Wo`;
+  return `vor ${Math.floor(days / 30)} Mon`;
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
+  const [attention, setAttention] = useState('all'); // all | waiting | overdue
+  const [sortBy, setSortBy] = useState('newest');
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     loadTickets();
   }, []);
 
-  const loadTickets = async () => {
+  const loadTickets = async (isManual) => {
     try {
-      setLoading(true);
+      if (isManual) setRefreshing(true);
+      else setLoading(true);
       const data = await ticketAPI.getTickets();
       setTickets(data);
       setError(null);
@@ -57,6 +84,7 @@ const Dashboard = () => {
       setError(err.message);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -70,10 +98,14 @@ const Dashboard = () => {
     }
   };
 
+  const toggleAttention = (val) => setAttention((cur) => (cur === val ? 'all' : val));
+
   const filtered = tickets.filter((t) => {
     if (statusFilter !== 'all' && t.status !== statusFilter) return false;
     if (categoryFilter !== 'all' && t.category !== categoryFilter) return false;
     if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
+    if (attention === 'waiting' && !isWaiting(t)) return false;
+    if (attention === 'overdue' && !isOverdue(t)) return false;
     if (search) {
       const q = search.toLowerCase();
       const hay = `${t.guestName} ${t.guestEmail} ${t.subject}`.toLowerCase();
@@ -82,12 +114,23 @@ const Dashboard = () => {
     return true;
   });
 
+  const rows = [...filtered].sort((x, y) => {
+    if (sortBy === 'oldest') return new Date(x.createdAt) - new Date(y.createdAt);
+    if (sortBy === 'priority')
+      return (PRANK[x.priority] ?? 1) - (PRANK[y.priority] ?? 1) || new Date(y.createdAt) - new Date(x.createdAt);
+    if (sortBy === 'waiting')
+      return (isWaiting(y) - isWaiting(x)) || new Date(x.createdAt) - new Date(y.createdAt);
+    return new Date(y.createdAt) - new Date(x.createdAt); // newest
+  });
+
   const counts = {
     all: tickets.length,
     open: tickets.filter((t) => t.status === 'open').length,
     in_progress: tickets.filter((t) => t.status === 'in_progress').length,
     closed: tickets.filter((t) => t.status === 'closed').length,
   };
+  const waitingCount = tickets.filter(isWaiting).length;
+  const overdueCount = tickets.filter(isOverdue).length;
 
   const stats = [
     { key: 'all', label: 'Tickets gesamt', value: counts.all, Icon: IconInbox, tone: 'accent' },
@@ -96,6 +139,22 @@ const Dashboard = () => {
     { key: 'closed', label: 'Geschlossen', value: counts.closed, Icon: IconCheck, tone: 'green' },
   ];
 
+  const resetFilters = () => {
+    setStatusFilter('all');
+    setCategoryFilter('all');
+    setPriorityFilter('all');
+    setAttention('all');
+    setSearch('');
+  };
+
+  // Response indicator for a ticket's time cell.
+  const respChip = (t) => {
+    if (isOverdue(t)) return <span className="resp-chip resp-overdue"><span className="dot fill-red" />Überfällig</span>;
+    if (hasReply(t)) return <span className="resp-chip resp-answered"><span className="dot fill-green" />Beantwortet</span>;
+    if (isWaiting(t)) return <span className="resp-chip resp-waiting"><span className="dot fill-amber" />Wartet</span>;
+    return <span className="resp-chip resp-none">—</span>;
+  };
+
   return (
     <div className="page">
       <header className="page-head">
@@ -103,6 +162,16 @@ const Dashboard = () => {
           <h1 className="page-title">Tickets</h1>
           <p className="page-sub">Gästeanfragen — automatisch kategorisiert, priorisiert und geroutet</p>
         </div>
+        <button
+          type="button"
+          className="refresh-btn"
+          onClick={() => loadTickets(true)}
+          disabled={refreshing || loading}
+          aria-label="Tickets aktualisieren"
+        >
+          <span className={refreshing ? 'spin' : ''}><IconRefresh size={16} /></span>
+          Aktualisieren
+        </button>
       </header>
 
       {/* Stat cards */}
@@ -123,6 +192,29 @@ const Dashboard = () => {
             <div className="stat-value">{loading ? '–' : s.value}</div>
           </button>
         ))}
+      </div>
+
+      {/* Quick filters — the "needs attention" queue */}
+      <div className="quickbar">
+        <span className="quickbar-label">Schnellfilter</span>
+        <button
+          type="button"
+          className={`chip ${attention === 'waiting' ? 'chip-active' : ''}`}
+          onClick={() => toggleAttention('waiting')}
+          aria-pressed={attention === 'waiting'}
+        >
+          <span className="dot fill-amber" /> Wartet auf Antwort
+          <span className="chip-count">{waitingCount}</span>
+        </button>
+        <button
+          type="button"
+          className={`chip ${attention === 'overdue' ? 'chip-active' : ''} ${overdueCount > 0 ? 'chip-alarm' : ''}`}
+          onClick={() => toggleAttention('overdue')}
+          aria-pressed={attention === 'overdue'}
+        >
+          <span className="dot fill-red" /> Überfällig (&gt; {OVERDUE_HRS} Std)
+          <span className="chip-count">{overdueCount}</span>
+        </button>
       </div>
 
       {/* Toolbar */}
@@ -155,6 +247,12 @@ const Dashboard = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <select className="select" aria-label="Sortieren" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+            <option value="newest">Neueste zuerst</option>
+            <option value="oldest">Älteste zuerst</option>
+            <option value="priority">Nach Priorität</option>
+            <option value="waiting">Längste Wartezeit</option>
+          </select>
           <select className="select" aria-label="Nach Kategorie filtern" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
             <option value="all">Alle Kategorien</option>
             <option value="complaint">Beschwerde</option>
@@ -174,7 +272,7 @@ const Dashboard = () => {
       {error && (
         <div className="banner-error">
           Fehler beim Laden: {error}
-          <button onClick={loadTickets} className="banner-retry">Erneut versuchen</button>
+          <button onClick={() => loadTickets(true)} className="banner-retry">Erneut versuchen</button>
         </div>
       )}
 
@@ -190,40 +288,33 @@ const Dashboard = () => {
                 <th>Priorität</th>
                 <th>Stimmung</th>
                 <th>Team</th>
+                <th>Eingegangen</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="7" className="tbl-empty"><div className="spinner" /></td></tr>
-              ) : filtered.length === 0 ? (
+                <tr><td colSpan="8" className="tbl-empty"><div className="spinner" /></td></tr>
+              ) : rows.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="tbl-empty">
+                  <td colSpan="8" className="tbl-empty">
                     <div className="empty-title">Keine Tickets mit diesen Filtern</div>
-                    <button
-                      type="button"
-                      className="empty-action"
-                      onClick={() => {
-                        setStatusFilter('all');
-                        setCategoryFilter('all');
-                        setPriorityFilter('all');
-                        setSearch('');
-                      }}
-                    >
+                    <button type="button" className="empty-action" onClick={resetFilters}>
                       Filter zurücksetzen
                     </button>
                   </td>
                 </tr>
               ) : (
-                filtered.map((t) => {
+                rows.map((t) => {
                   const cat = CATEGORY[t.category] || CATEGORY.other;
                   const prio = PRIORITY[t.priority] || PRIORITY.medium;
                   const sent = SENTIMENT[t.sentiment] || SENTIMENT.neutral;
                   const CatIcon = cat.Icon;
+                  const overdue = isOverdue(t);
                   return (
                     <tr
                       key={t._id}
-                      className="tbl-row"
+                      className={`tbl-row ${overdue ? 'row-overdue' : ''}`}
                       onClick={() => navigate(`/ticket/${t._id}`)}
                       tabIndex={0}
                       role="button"
@@ -262,6 +353,17 @@ const Dashboard = () => {
                         </span>
                       </td>
                       <td><span className="team">{t.assignedTo || '—'}</span></td>
+                      <td>
+                        <div className="time-cell">
+                          <span
+                            className={`time-rel ${overdue ? 'time-overdue' : ''}`}
+                            title={new Date(t.createdAt).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}
+                          >
+                            {relativeTime(t.createdAt)}
+                          </span>
+                          {respChip(t)}
+                        </div>
+                      </td>
                       <td onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                         <div className={`status-select-wrap tint-${STATUS[t.status]?.cls || 'gray'}`}>
                           <select

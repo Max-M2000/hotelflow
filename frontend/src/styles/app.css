@@ -159,6 +159,17 @@ button, input, select, textarea {
 .dot-neutral { background: var(--dot-neutral); }
 .dot-negative { background: var(--dot-negative); }
 
+/* Fill colors (bars, dots) — shared across pages */
+.fill-red { background: var(--red-fg); }
+.fill-green { background: var(--green-fg); }
+.fill-blue { background: var(--blue-fg); }
+.fill-gray { background: var(--gray-fg); }
+.fill-amber { background: var(--amber-fg); }
+.fill-accent { background: var(--accent); }
+.fill-positive { background: var(--dot-positive); }
+.fill-neutral { background: var(--dot-neutral); }
+.fill-negative { background: var(--dot-negative); }
+
 /* Global keyboard focus ring (a11y: focus-states) */
 button:focus-visible,
 a:focus-visible,
