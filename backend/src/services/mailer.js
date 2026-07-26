@@ -1,13 +1,21 @@
 const nodemailer = require('nodemailer');
 const axios = require('axios');
+const {
+  SESv2Client,
+  SendEmailCommand,
+} = require('@aws-sdk/client-sesv2');
 
-// Provider-agnostic mailer. Two transports:
-//   1. Resend (HTTP API, port 443) — preferred on hosts that block SMTP (Railway).
-//      Set RESEND_API_KEY. Sender domain must be verified in Resend.
-//   2. SMTP (nodemailer) — fallback, e.g. Zoho. Blocked by some hosts.
+// Provider-agnostic mailer. Three transports, chosen by which env vars are set
+// (priority: SES → Resend → SMTP). All HTTPS transports work on hosts that
+// block outbound SMTP (e.g. Railway).
+//   1. Amazon SES (HTTPS API, port 443) — long-term choice: cheapest at scale,
+//      no monthly cap. Set AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY + AWS_REGION.
+//   2. Resend (HTTPS API) — set RESEND_API_KEY.
+//   3. SMTP (nodemailer) — fallback, e.g. Zoho. Blocked by some hosts.
 //
 // Env vars:
-//   RESEND_API_KEY  if set → send via Resend HTTPS API
+//   AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY / AWS_REGION  → send via SES
+//   RESEND_API_KEY                                          → send via Resend
 //   MAIL_FROM       display sender, e.g. "Ospitara <info@ospitara.de>"
 //   SMTP_HOST/PORT/USER/PASS  SMTP fallback config
 
@@ -26,7 +34,52 @@ const resolveFrom = () =>
   process.env.MAIL_FROM ||
   (process.env.SMTP_USER ? `Ospitara <${process.env.SMTP_USER}>` : null);
 
-// ---- Transport 1: Resend (HTTP API) ----
+// ---- Transport 1: Amazon SES (HTTPS API) ----
+let cachedSesClient = null;
+
+const getSesClient = () => {
+  if (cachedSesClient) return cachedSesClient;
+  cachedSesClient = new SESv2Client({
+    region: process.env.AWS_REGION || 'eu-central-1',
+    // Credentials are read automatically from AWS_ACCESS_KEY_ID /
+    // AWS_SECRET_ACCESS_KEY env vars by the SDK's default provider chain.
+  });
+  return cachedSesClient;
+};
+
+const sendViaSes = async ({ to, subject, body, inReplyTo }) => {
+  const from = resolveFrom();
+  if (!from) {
+    throw new Error('MAIL_FROM not set — required for SES sending.');
+  }
+
+  const command = new SendEmailCommand({
+    FromEmailAddress: from,
+    Destination: { ToAddresses: [to] },
+    Content: {
+      Simple: {
+        Subject: { Data: subject, Charset: 'UTF-8' },
+        Body: {
+          Text: { Data: body, Charset: 'UTF-8' },
+          Html: { Data: buildHtml(body), Charset: 'UTF-8' },
+        },
+        ...(inReplyTo
+          ? {
+              Headers: [
+                { Name: 'In-Reply-To', Value: inReplyTo },
+                { Name: 'References', Value: inReplyTo },
+              ],
+            }
+          : {}),
+      },
+    },
+  });
+
+  const result = await getSesClient().send(command);
+  return { messageId: result.MessageId };
+};
+
+// ---- Transport 2: Resend (HTTP API) ----
 const sendViaResend = async ({ to, subject, body, inReplyTo }) => {
   const from = resolveFrom();
   if (!from) {
@@ -116,6 +169,12 @@ const sendViaSmtp = async ({ to, subject, body, inReplyTo }) => {
  * @returns {Promise<{messageId: string}>}
  */
 const sendReply = async (opts) => {
+  // Priority 1: Amazon SES
+  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+    return sendViaSes(opts);
+  }
+
+  // Priority 2: Resend
   if (process.env.RESEND_API_KEY) {
     try {
       return await sendViaResend(opts);
@@ -128,6 +187,8 @@ const sendReply = async (opts) => {
       throw new Error(apiMsg);
     }
   }
+
+  // Priority 3: SMTP fallback
   return sendViaSmtp(opts);
 };
 

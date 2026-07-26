@@ -35,6 +35,8 @@ app.listen(PORT, () => {
   console.log(`Environment: NODE_ENV=${process.env.NODE_ENV}`);
   console.log(`MONGODB_URI set: ${process.env.MONGODB_URI ? 'YES' : 'NO'}`);
   console.log(`OPENAI_API_KEY set: ${process.env.OPENAI_API_KEY ? 'YES' : 'NO'}`);
+  console.log(`AWS_ACCESS_KEY_ID set: ${process.env.AWS_ACCESS_KEY_ID ? 'YES' : 'NO'}`);
+  console.log(`AWS_REGION set: ${process.env.AWS_REGION ? 'YES (' + process.env.AWS_REGION + ')' : 'NO (default eu-central-1)'}`);
   console.log(`RESEND_API_KEY set: ${process.env.RESEND_API_KEY ? 'YES' : 'NO'}`);
   console.log(`MAIL_FROM set: ${process.env.MAIL_FROM ? 'YES (' + process.env.MAIL_FROM + ')' : 'NO'}`);
   console.log(`SMTP_HOST set: ${process.env.SMTP_HOST ? 'YES (' + process.env.SMTP_HOST + ')' : 'NO'}`);
