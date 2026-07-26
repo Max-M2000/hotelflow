@@ -256,6 +256,27 @@ router.post('/routing-rules', async (req, res) => {
   }
 });
 
+// PATCH /api/routing-rules/:id - update a rule (e.g. change the assigned team)
+router.patch('/routing-rules/:id', async (req, res) => {
+  try {
+    const { assignTo, priority, sentiment, active } = req.body;
+    const update = {};
+    if (assignTo !== undefined) update.assignTo = assignTo;
+    if (priority !== undefined) update.priority = priority || undefined;
+    if (sentiment !== undefined) update.sentiment = sentiment || undefined;
+    if (active !== undefined) update.active = active;
+
+    const rule = await RoutingRule.findByIdAndUpdate(req.params.id, update, {
+      new: true,
+      runValidators: true,
+    });
+    if (!rule) return res.status(404).json({ error: 'Rule not found' });
+    res.json(rule);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // DELETE /api/routing-rules/:id - delete a rule
 router.delete('/routing-rules/:id', async (req, res) => {
   try {

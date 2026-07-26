@@ -60,6 +60,12 @@ export const routingRuleAPI = {
     return response.data;
   },
 
+  // Update a routing rule (e.g. change the assigned team)
+  updateRule: async (id, updates) => {
+    const response = await api.patch(`/routing-rules/${id}`, updates);
+    return response.data;
+  },
+
   // Delete a routing rule
   deleteRule: async (id) => {
     const response = await api.delete(`/routing-rules/${id}`);

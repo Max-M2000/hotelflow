@@ -1,35 +1,140 @@
 import React, { useState, useEffect } from 'react';
 import { routingRuleAPI } from '../services/api';
 import {
-  IconUsers, IconPlus, IconTrash, IconArrowRight,
+  IconPlus, IconTrash, IconArrowRight, IconCheck,
   IconAlert, IconCalendar, IconHelp, IconDots,
 } from './Icons';
 import '../styles/dashboard.css';
 import '../styles/detail.css';
 import '../styles/settings.css';
 
-const CATEGORY = {
-  complaint: { label: 'Beschwerde', cls: 'red', Icon: IconAlert },
-  booking: { label: 'Buchung', cls: 'green', Icon: IconCalendar },
-  inquiry: { label: 'Anfrage', cls: 'blue', Icon: IconHelp },
-  other: { label: 'Sonstiges', cls: 'gray', Icon: IconDots },
-};
-const PRIORITY = {
-  high: 'Hoch',
-  medium: 'Mittel',
-  low: 'Niedrig',
+const CATEGORIES = [
+  { key: 'complaint', label: 'Beschwerde', cls: 'red', Icon: IconAlert },
+  { key: 'booking', label: 'Buchung', cls: 'green', Icon: IconCalendar },
+  { key: 'inquiry', label: 'Anfrage', cls: 'blue', Icon: IconHelp },
+  { key: 'other', label: 'Sonstiges', cls: 'gray', Icon: IconDots },
+];
+const PRIORITY = { high: 'Hoch', medium: 'Mittel', low: 'Niedrig' };
+
+// One card per category: base team + optional priority exceptions.
+const CategoryCard = ({ cat, baseRule, exceptions, onSaveBase, onAddException, onDelete }) => {
+  const [team, setTeam] = useState(baseRule?.assignTo || '');
+  const [busy, setBusy] = useState(false);
+  const [exOpen, setExOpen] = useState(false);
+  const [exPriority, setExPriority] = useState('high');
+  const [exTeam, setExTeam] = useState('');
+
+  useEffect(() => {
+    setTeam(baseRule?.assignTo || '');
+  }, [baseRule]);
+
+  const dirty = team.trim() !== (baseRule?.assignTo || '') && team.trim() !== '';
+  const CatIcon = cat.Icon;
+
+  const saveBase = async () => {
+    setBusy(true);
+    await onSaveBase(cat.key, team.trim(), baseRule);
+    setBusy(false);
+  };
+
+  const addException = async (e) => {
+    e.preventDefault();
+    if (!exTeam.trim()) return;
+    setBusy(true);
+    await onAddException(cat.key, exPriority, exTeam.trim());
+    setExTeam('');
+    setExOpen(false);
+    setBusy(false);
+  };
+
+  // Priorities not yet used by an exception in this category.
+  const usedPriorities = exceptions.map((r) => r.priority);
+  const freePriorities = Object.keys(PRIORITY).filter((p) => !usedPriorities.includes(p));
+
+  return (
+    <div className="card cat-card">
+      <div className="cat-head">
+        <span className={`pill tint-${cat.cls}`}><CatIcon size={13} />{cat.label}</span>
+      </div>
+
+      {/* Base team */}
+      <div className="cat-base">
+        <label className="field-label" htmlFor={`team-${cat.key}`}>Standard-Team</label>
+        <div className="cat-base-row">
+          <input
+            id={`team-${cat.key}`}
+            className="field-input"
+            type="text"
+            value={team}
+            onChange={(e) => setTeam(e.target.value)}
+            placeholder="z.B. Rezeption"
+          />
+          <button
+            className="btn-primary cat-save"
+            onClick={saveBase}
+            disabled={busy || !dirty}
+            title="Team speichern"
+          >
+            <IconCheck size={15} /> Speichern
+          </button>
+        </div>
+      </div>
+
+      {/* Exceptions */}
+      {exceptions.length > 0 && (
+        <ul className="exc-list">
+          {exceptions.map((rule) => (
+            <li key={rule._id} className="exc-row">
+              <span className="exc-when">wenn Priorität <strong>{PRIORITY[rule.priority] || rule.priority}</strong></span>
+              <IconArrowRight size={14} />
+              <span className="exc-team">{rule.assignTo}</span>
+              <button
+                className="rule-delete"
+                onClick={() => onDelete(rule._id)}
+                aria-label={`Ausnahme ${PRIORITY[rule.priority]} → ${rule.assignTo} löschen`}
+                title="Ausnahme löschen"
+              >
+                <IconTrash size={15} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Add exception */}
+      {exOpen ? (
+        <form onSubmit={addException} className="exc-form">
+          <select className="field-select exc-prio" value={exPriority} onChange={(e) => setExPriority(e.target.value)} aria-label="Priorität der Ausnahme">
+            {freePriorities.map((p) => (
+              <option key={p} value={p}>{PRIORITY[p]}</option>
+            ))}
+          </select>
+          <input
+            className="field-input"
+            type="text"
+            value={exTeam}
+            onChange={(e) => setExTeam(e.target.value)}
+            placeholder="Team für diese Priorität"
+            aria-label="Team der Ausnahme"
+          />
+          <button type="submit" className="btn-primary" disabled={busy || !exTeam.trim()}>Hinzufügen</button>
+          <button type="button" className="btn-ghost" onClick={() => setExOpen(false)}>Abbrechen</button>
+        </form>
+      ) : (
+        freePriorities.length > 0 && (
+          <button className="exc-add" onClick={() => { setExPriority(freePriorities[0]); setExOpen(true); }}>
+            <IconPlus size={14} /> Ausnahme nach Priorität
+          </button>
+        )
+      )}
+    </div>
+  );
 };
 
 const Settings = () => {
   const [rules, setRules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [saving, setSaving] = useState(false);
-
-  // New-rule form state
-  const [category, setCategory] = useState('complaint');
-  const [assignTo, setAssignTo] = useState('');
-  const [priority, setPriority] = useState('');
 
   useEffect(() => {
     loadRules();
@@ -48,146 +153,67 @@ const Settings = () => {
     }
   };
 
-  const handleAdd = async (e) => {
-    e.preventDefault();
-    if (!assignTo.trim()) return;
-    setSaving(true);
+  const wrap = async (fn) => {
     setError(null);
     try {
-      await routingRuleAPI.createRule({
-        category,
-        assignTo: assignTo.trim(),
-        priority: priority || undefined,
-      });
-      setAssignTo('');
-      setPriority('');
+      await fn();
       await loadRules();
-    } catch (err) {
-      setError(err.response?.data?.error || err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await routingRuleAPI.deleteRule(id);
-      setRules((prev) => prev.filter((r) => r._id !== id));
     } catch (err) {
       setError(err.response?.data?.error || err.message);
     }
   };
 
-  const handleSeed = async () => {
-    setSaving(true);
-    setError(null);
-    try {
-      await routingRuleAPI.seedDefaults();
-      await loadRules();
-    } catch (err) {
-      setError(err.response?.data?.error || err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
+  const handleSaveBase = (category, team, baseRule) =>
+    wrap(() =>
+      baseRule
+        ? routingRuleAPI.updateRule(baseRule._id, { assignTo: team })
+        : routingRuleAPI.createRule({ category, assignTo: team })
+    );
+
+  const handleAddException = (category, priority, team) =>
+    wrap(() => routingRuleAPI.createRule({ category, priority, assignTo: team }));
+
+  const handleDelete = (id) => wrap(() => routingRuleAPI.deleteRule(id));
 
   return (
     <div className="page">
       <div className="detail-head">
         <h1 className="detail-title">Einstellungen</h1>
         <p className="settings-subtitle">
-          Lege fest, an welches Team eingehende Tickets automatisch weitergeleitet werden.
+          Lege pro Kategorie fest, welches Team zuständig ist. Optional pro Priorität eine Ausnahme.
         </p>
       </div>
 
-      <div className="settings-grid">
-        {/* Rules list */}
-        <div className="card">
-          <div className="card-title">
-            <IconUsers size={17} /> Routing-Regeln
-            <span className="count-badge">{rules.length}</span>
-          </div>
+      {error && <div className="banner-error" role="alert">{error}</div>}
 
-          {loading ? (
-            <div className="settings-loading"><div className="spinner" /></div>
-          ) : rules.length === 0 ? (
-            <div className="settings-empty">
-              <p>Noch keine Regeln. Ohne Regel landet alles bei <strong>Rezeption</strong> (Standard).</p>
-              <button className="btn-primary" onClick={handleSeed} disabled={saving}>
-                {saving ? 'Lädt…' : 'Standard-Regeln laden'}
-              </button>
-            </div>
-          ) : (
-            <ul className="rule-list">
-              {rules.map((rule) => {
-                const cat = CATEGORY[rule.category] || CATEGORY.other;
-                const CatIcon = cat.Icon;
-                return (
-                  <li key={rule._id} className="rule-row">
-                    <span className={`pill tint-${cat.cls}`}><CatIcon size={13} />{cat.label}</span>
-                    {rule.priority && (
-                      <span className="rule-filter">Priorität: {PRIORITY[rule.priority] || rule.priority}</span>
-                    )}
-                    <IconArrowRight size={16} />
-                    <span className="rule-team">{rule.assignTo}</span>
-                    <button
-                      className="rule-delete"
-                      onClick={() => handleDelete(rule._id)}
-                      aria-label={`Regel ${cat.label} → ${rule.assignTo} löschen`}
-                      title="Regel löschen"
-                    >
-                      <IconTrash size={16} />
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-
-          {error && <div className="banner-error" role="alert">{error}</div>}
+      {loading ? (
+        <div className="settings-loading"><div className="spinner" /></div>
+      ) : (
+        <div className="cat-stack">
+          {CATEGORIES.map((cat) => {
+            const baseRule = rules.find((r) => r.category === cat.key && !r.priority);
+            const exceptions = rules
+              .filter((r) => r.category === cat.key && r.priority)
+              .sort((a, b) => a.priority.localeCompare(b.priority));
+            return (
+              <CategoryCard
+                key={cat.key}
+                cat={cat}
+                baseRule={baseRule}
+                exceptions={exceptions}
+                onSaveBase={handleSaveBase}
+                onAddException={handleAddException}
+                onDelete={handleDelete}
+              />
+            );
+          })}
         </div>
+      )}
 
-        {/* Add rule */}
-        <div className="card">
-          <div className="card-title"><IconPlus size={17} /> Neue Regel</div>
-          <form onSubmit={handleAdd} className="rule-form">
-            <label className="field-label" htmlFor="rule-category">Kategorie</label>
-            <select id="rule-category" className="field-select" value={category} onChange={(e) => setCategory(e.target.value)}>
-              <option value="complaint">Beschwerde</option>
-              <option value="booking">Buchung</option>
-              <option value="inquiry">Anfrage</option>
-              <option value="other">Sonstiges</option>
-            </select>
-
-            <label className="field-label" htmlFor="rule-priority">Nur bei Priorität (optional)</label>
-            <select id="rule-priority" className="field-select" value={priority} onChange={(e) => setPriority(e.target.value)}>
-              <option value="">Alle Prioritäten</option>
-              <option value="high">Hoch</option>
-              <option value="medium">Mittel</option>
-              <option value="low">Niedrig</option>
-            </select>
-
-            <label className="field-label" htmlFor="rule-team">Zuständiges Team</label>
-            <input
-              id="rule-team"
-              className="field-input"
-              type="text"
-              value={assignTo}
-              onChange={(e) => setAssignTo(e.target.value)}
-              placeholder="z.B. Management, Reservierung, Rezeption"
-            />
-
-            <button type="submit" className="btn-primary" disabled={saving || !assignTo.trim()}>
-              <IconPlus size={15} /> {saving ? 'Speichern…' : 'Regel hinzufügen'}
-            </button>
-          </form>
-
-          <p className="rule-hint">
-            Regeln greifen nach Kategorie. Eine Prioritäts-Regel (z.&nbsp;B. „Beschwerde + Hoch → Management")
-            hat Vorrang, wenn sie passt.
-          </p>
-        </div>
-      </div>
+      <p className="rule-hint">
+        Ohne passende Regel wird ein Ticket der <strong>Rezeption</strong> zugewiesen (Fallback).
+        Eine Prioritäts-Ausnahme hat immer Vorrang vor dem Standard-Team.
+      </p>
     </div>
   );
 };
