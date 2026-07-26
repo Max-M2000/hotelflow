@@ -131,7 +131,7 @@ const CategoryCard = ({ cat, baseRule, exceptions, onSaveBase, onAddException, o
   );
 };
 
-const Settings = () => {
+const Routing = () => {
   const [rules, setRules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -178,7 +178,7 @@ const Settings = () => {
   return (
     <div className="page">
       <div className="detail-head">
-        <h1 className="detail-title">Einstellungen</h1>
+        <h1 className="detail-title">Team-Routing</h1>
         <p className="settings-subtitle">
           Lege pro Kategorie fest, welches Team zuständig ist. Optional pro Priorität eine Ausnahme.
         </p>
@@ -218,4 +218,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default Routing;
