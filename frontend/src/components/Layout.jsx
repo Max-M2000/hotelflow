@@ -11,6 +11,7 @@ const Layout = ({ children, onLogout }) => {
 
   const isTickets = location.pathname === '/' || location.pathname.startsWith('/ticket');
   const isRouting = location.pathname.startsWith('/routing');
+  const isReports = location.pathname.startsWith('/reports');
 
   const handleLogout = () => {
     if (onLogout) onLogout();
@@ -48,10 +49,13 @@ const Layout = ({ children, onLogout }) => {
             <IconUsers size={18} />
             <span>Team-Routing</span>
           </button>
-          <button className="nav-item nav-item-disabled" disabled>
+          <button
+            className={`nav-item ${isReports ? 'nav-item-active' : ''}`}
+            onClick={() => navigate('/reports')}
+            aria-current={isReports ? 'page' : undefined}
+          >
             <IconChart size={18} />
             <span>Berichte</span>
-            <span className="nav-badge">Bald</span>
           </button>
           <button className="nav-item nav-item-disabled" disabled>
             <IconSettings size={18} />

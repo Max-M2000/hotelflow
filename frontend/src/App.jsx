@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import TicketDetail from './components/TicketDetail';
 import Routing from './components/Routing';
+import Reports from './components/Reports';
 import './styles/app.css';
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
         <Route path="/" element={requireAuth(<Dashboard />)} />
         <Route path="/ticket/:id" element={requireAuth(<TicketDetail />)} />
         <Route path="/routing" element={requireAuth(<Routing />)} />
+        <Route path="/reports" element={requireAuth(<Reports />)} />
       </Routes>
     </Router>
   );

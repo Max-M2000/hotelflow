@@ -1,0 +1,138 @@
+/* Reports page — KPIs + distribution bars */
+
+.stat-card-static {
+  cursor: default;
+}
+.stat-card-static:hover {
+  border-color: var(--border);
+  box-shadow: var(--shadow-xs);
+  transform: none;
+}
+
+/* Red icon tone (not defined in dashboard.css) */
+.tone-red {
+  background: var(--red-bg);
+  color: var(--red-fg);
+}
+
+.reports-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+  margin-top: 20px;
+}
+
+.rep-card-wide {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 860px) {
+  .reports-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rep-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-xs);
+  padding: 18px 20px;
+}
+
+.rep-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rep-title svg {
+  color: var(--text-3);
+}
+
+/* Bars */
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 13px;
+}
+
+.bar-row:last-child {
+  margin-bottom: 0;
+}
+
+.bar-label {
+  width: 118px;
+  font-size: 13px;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
+.bar-label-team {
+  font-weight: 500;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar-track {
+  flex: 1;
+  height: 10px;
+  background: var(--surface-2);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  min-width: 2px;
+  transition: width 0.4s ease;
+}
+
+.bar-count {
+  width: 34px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+/* Fill colors */
+.fill-red { background: var(--red-fg); }
+.fill-green { background: var(--green-fg); }
+.fill-blue { background: var(--blue-fg); }
+.fill-gray { background: var(--gray-fg); }
+.fill-accent { background: var(--accent); }
+.fill-positive { background: var(--dot-positive); }
+.fill-neutral { background: var(--dot-neutral); }
+.fill-negative { background: var(--dot-negative); }
+
+/* States */
+.reports-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.reports-empty {
+  padding: 48px 20px;
+  text-align: center;
+  color: var(--text-2);
+  font-size: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+}
