@@ -10,6 +10,7 @@ const Layout = ({ children, onLogout }) => {
   const initials = userEmail.charAt(0).toUpperCase();
 
   const isTickets = location.pathname === '/' || location.pathname.startsWith('/ticket');
+  const isSettings = location.pathname.startsWith('/settings');
 
   const handleLogout = () => {
     if (onLogout) onLogout();
@@ -49,10 +50,13 @@ const Layout = ({ children, onLogout }) => {
             <span>Berichte</span>
             <span className="nav-badge">Bald</span>
           </button>
-          <button className="nav-item nav-item-disabled" disabled>
+          <button
+            className={`nav-item ${isSettings ? 'nav-item-active' : ''}`}
+            onClick={() => navigate('/settings')}
+            aria-current={isSettings ? 'page' : undefined}
+          >
             <IconSettings size={18} />
             <span>Einstellungen</span>
-            <span className="nav-badge">Bald</span>
           </button>
         </nav>
 

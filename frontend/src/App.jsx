@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import TicketDetail from './components/TicketDetail';
+import Settings from './components/Settings';
 import './styles/app.css';
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
         />
         <Route path="/" element={requireAuth(<Dashboard />)} />
         <Route path="/ticket/:id" element={requireAuth(<TicketDetail />)} />
+        <Route path="/settings" element={requireAuth(<Settings />)} />
       </Routes>
     </Router>
   );

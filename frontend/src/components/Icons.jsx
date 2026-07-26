@@ -85,3 +85,15 @@ export const IconUsers = ({ size }) => (
 export const IconSend = ({ size }) => (
   <svg {...base(size)}><path d="m22 2-7 20-4-9-9-4 20-7z" /><path d="M22 2 11 13" /></svg>
 );
+
+export const IconPlus = ({ size }) => (
+  <svg {...base(size)}><path d="M12 5v14M5 12h14" /></svg>
+);
+
+export const IconTrash = ({ size }) => (
+  <svg {...base(size)}><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M10 11v6M14 11v6" /></svg>
+);
+
+export const IconArrowRight = ({ size }) => (
+  <svg {...base(size)}><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+);

@@ -1,0 +1,116 @@
+/* Settings page — routing rules management */
+
+.settings-subtitle {
+  color: var(--text-2);
+  font-size: 14px;
+  margin: 0;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Rule list */
+.rule-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 20px 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rule-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-3);
+}
+
+.rule-row:last-child {
+  border-bottom: none;
+}
+
+.rule-filter {
+  font-size: 12px;
+  color: var(--text-2);
+  background: var(--surface-2);
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.rule-team {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.rule-delete {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: inline-flex;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.rule-delete:hover {
+  background: var(--red-bg);
+  color: var(--red-fg);
+}
+
+/* Add-rule form */
+.rule-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 20px 4px;
+}
+
+.rule-form .btn-primary {
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+.rule-hint {
+  font-size: 12.5px;
+  color: var(--text-3);
+  padding: 8px 20px 18px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Empty & loading states */
+.settings-empty {
+  padding: 20px;
+  color: var(--text-2);
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.settings-empty p {
+  margin: 0;
+}
+
+.settings-loading {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}

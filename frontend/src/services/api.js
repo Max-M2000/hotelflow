@@ -46,3 +46,29 @@ export const ticketAPI = {
     return response.data;
   },
 };
+
+export const routingRuleAPI = {
+  // List all routing rules
+  getRules: async () => {
+    const response = await api.get('/routing-rules');
+    return response.data;
+  },
+
+  // Create a routing rule
+  createRule: async (rule) => {
+    const response = await api.post('/routing-rules', rule);
+    return response.data;
+  },
+
+  // Delete a routing rule
+  deleteRule: async (id) => {
+    const response = await api.delete(`/routing-rules/${id}`);
+    return response.data;
+  },
+
+  // Seed the 4 default rules (only if none exist yet)
+  seedDefaults: async () => {
+    const response = await api.post('/routing-rules/seed-defaults');
+    return response.data;
+  },
+};
