@@ -270,7 +270,7 @@ const Dashboard = () => {
       </div>
 
       {error && (
-        <div className="banner-error">
+        <div className="banner-error" role="alert">
           Fehler beim Laden: {error}
           <button onClick={() => loadTickets(true)} className="banner-retry">Erneut versuchen</button>
         </div>

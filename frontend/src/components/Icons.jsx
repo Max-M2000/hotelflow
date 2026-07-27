@@ -10,6 +10,8 @@ const base = (size = 18) => ({
   strokeWidth: 1.75,
   strokeLinecap: 'round',
   strokeLinejoin: 'round',
+  'aria-hidden': true, // decorative — labels/aria-label carry meaning
+  focusable: 'false',
 });
 
 // Ospitara brand mark: a speech-bubble "O" (guest communication). Solid brand blue,

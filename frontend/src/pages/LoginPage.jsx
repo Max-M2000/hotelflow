@@ -67,11 +67,14 @@ const LoginPage = ({ onLogin }) => {
               <label htmlFor="email">E-Mail</label>
               <input
                 id="email"
-                type="text"
+                type="email"
+                inputMode="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@ospitara.com"
                 autoComplete="username"
+                spellCheck={false}
+                autoCapitalize="none"
                 autoFocus
               />
             </div>

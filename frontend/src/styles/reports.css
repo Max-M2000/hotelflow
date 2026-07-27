@@ -108,6 +108,7 @@
   font-weight: 600;
   color: var(--text);
   flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 /* (fill-* colors live globally in app.css) */
