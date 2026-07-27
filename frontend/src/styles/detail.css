@@ -311,6 +311,17 @@
   background: var(--accent-soft);
 }
 
+.tpl-btn-sig {
+  background: var(--accent-soft);
+  border-color: var(--accent-soft-2);
+  color: var(--accent-text);
+}
+
+.tpl-empty {
+  font-size: 12.5px;
+  color: var(--text-3);
+}
+
 .reply-list {
   display: flex;
   flex-direction: column;

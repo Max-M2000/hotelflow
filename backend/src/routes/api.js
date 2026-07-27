@@ -5,6 +5,7 @@ const RoutingRule = require('../models/RoutingRule');
 const { processIncomingEmail } = require('../services/emailIngestService');
 const { normalizeInboundEmail } = require('../services/inboundParser');
 const { sendReply } = require('../services/mailer');
+const Settings = require('../models/Settings');
 
 // POST /api/inbound/email - Provider-agnostic inbound webhook (Channel #1)
 // Receives forwarded emails from an inbound-parse service (Postmark/Mailgun/
@@ -221,6 +222,45 @@ router.post('/tickets/:id/reply', async (req, res) => {
   } catch (error) {
     console.error('[Reply] Error:', error.message);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== Settings (signature + reply templates) =====
+
+// GET /api/settings - the hotel's signature + reply templates
+router.get('/settings', async (req, res) => {
+  try {
+    const settings = await Settings.getSingleton();
+    res.json(settings);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PATCH /api/settings - update signature and/or templates
+router.patch('/settings', async (req, res) => {
+  try {
+    const { signature, templates } = req.body;
+    const update = {};
+    if (signature !== undefined) update.signature = signature;
+    if (templates !== undefined) {
+      if (!Array.isArray(templates)) {
+        return res.status(400).json({ error: 'templates must be an array' });
+      }
+      // Keep only valid entries with both a label and a body.
+      update.templates = templates
+        .filter((t) => t && t.label && t.body)
+        .map((t) => ({ label: String(t.label), body: String(t.body) }));
+    }
+
+    const settings = await Settings.findOneAndUpdate(
+      { key: 'default' },
+      { $set: update },
+      { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true }
+    );
+    res.json(settings);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 

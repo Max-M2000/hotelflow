@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ticketAPI } from '../services/api';
+import { ticketAPI, settingsAPI } from '../services/api';
 import { IconArrowLeft, IconAlert, IconCalendar, IconHelp, IconDots, IconSend } from './Icons';
 import '../styles/detail.css';
 
@@ -20,15 +20,6 @@ const SENTIMENT = {
   neutral: { label: 'Neutral', cls: 'neutral' },
   negative: { label: 'Unzufrieden', cls: 'negative' },
 };
-
-// Quick-insert reply templates for the most common guest questions.
-const TEMPLATES = [
-  { label: 'Begrüßung', build: (name) => `Guten Tag${name ? ' ' + name : ''},\n\nvielen Dank für Ihre Nachricht.\n\n` },
-  { label: 'Check-in/-out', build: () => 'Unser Check-in ist ab 15:00 Uhr, der Check-out bis 11:00 Uhr möglich. Ein späterer Check-in ist nach Absprache jederzeit möglich – unsere Rezeption ist rund um die Uhr besetzt.\n\n' },
-  { label: 'Parkplatz', build: () => 'Direkt am Hotel stehen Ihnen kostenfreie Parkplätze zur Verfügung, eine Reservierung ist nicht erforderlich.\n\n' },
-  { label: 'WLAN', build: () => 'In allen Zimmern und öffentlichen Bereichen steht Ihnen kostenfreies WLAN zur Verfügung.\n\n' },
-  { label: 'Grußformel', build: () => 'Bei weiteren Fragen stehen wir Ihnen jederzeit gern zur Verfügung.\n\nHerzliche Grüße\nIhr Ospitara-Team' },
-];
 
 const relativeTime = (d) => {
   if (!d) return '';
@@ -56,10 +47,23 @@ const TicketDetail = () => {
   const [sendingReply, setSendingReply] = useState(false);
   const [replyError, setReplyError] = useState(null);
   const [replySuccess, setReplySuccess] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [signature, setSignature] = useState('');
 
   useEffect(() => {
     loadTicket();
   }, [id]);
+
+  // Load the hotel's signature + reply templates once.
+  useEffect(() => {
+    settingsAPI
+      .get()
+      .then((s) => {
+        setTemplates(s.templates || []);
+        setSignature(s.signature || '');
+      })
+      .catch(() => {}); // non-blocking — reply still works without templates
+  }, []);
 
   const loadTicket = async () => {
     try {
@@ -155,6 +159,9 @@ const TicketDetail = () => {
   const sent = SENTIMENT[ticket.sentiment] || SENTIMENT.neutral;
   const CatIcon = cat.Icon;
 
+  const firstName = (ticket.guestName || '').split(' ')[0];
+  const fillPlaceholders = (text) => (text || '').replace(/\{name\}/g, firstName);
+
   return (
     <div className="page">
       <button onClick={() => navigate('/')} className="back-link">
@@ -222,16 +229,28 @@ const TicketDetail = () => {
               <label className="field-label" htmlFor="reply-body">Nachricht an {ticket.guestEmail}</label>
               <div className="tpl-row" role="group" aria-label="Antwort-Vorlagen einfügen">
                 <span className="tpl-label">Vorlagen:</span>
-                {TEMPLATES.map((tpl) => (
+                {templates.map((tpl, i) => (
                   <button
-                    key={tpl.label}
+                    key={i}
                     type="button"
                     className="tpl-btn"
-                    onClick={() => insertTemplate(tpl.build((ticket.guestName || '').split(' ')[0]))}
+                    onClick={() => insertTemplate(fillPlaceholders(tpl.body))}
                   >
                     {tpl.label}
                   </button>
                 ))}
+                {signature && (
+                  <button
+                    type="button"
+                    className="tpl-btn tpl-btn-sig"
+                    onClick={() => insertTemplate(fillPlaceholders(signature))}
+                  >
+                    Signatur
+                  </button>
+                )}
+                {templates.length === 0 && !signature && (
+                  <span className="tpl-empty">Unter „Einstellungen“ anlegen</span>
+                )}
               </div>
               <textarea
                 id="reply-body"

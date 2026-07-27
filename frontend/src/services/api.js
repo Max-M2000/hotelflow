@@ -78,3 +78,17 @@ export const routingRuleAPI = {
     return response.data;
   },
 };
+
+export const settingsAPI = {
+  // Get signature + reply templates
+  get: async () => {
+    const response = await api.get('/settings');
+    return response.data;
+  },
+
+  // Update signature and/or templates
+  update: async (updates) => {
+    const response = await api.patch('/settings', updates);
+    return response.data;
+  },
+};
