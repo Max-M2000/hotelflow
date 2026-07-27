@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IconLogo, IconInbox, IconAlert, IconCheck } from '../components/Icons';
+import { IconLogo } from '../components/Icons';
 import '../styles/auth.css';
 
 const DEMO_EMAIL = 'admin@ospitara.com';
@@ -43,13 +43,35 @@ const LoginPage = ({ onLogin }) => {
           </div>
         </div>
         <div className="auth-brand-mid">
-          <h2>Gäste-E-Mails,<br />automatisch sortiert.</h2>
-          <p>Jede eingehende Nachricht wird per KI kategorisiert, priorisiert und an das richtige Team geroutet — bevor dein Team überhaupt draufschaut.</p>
-          <ul className="auth-features">
-            <li><span className="af-icon"><IconInbox size={15} /></span> Automatische Ticket-Erstellung aus E-Mails</li>
-            <li><span className="af-icon"><IconAlert size={15} /></span> KI erkennt Beschwerden & Priorität</li>
-            <li><span className="af-icon"><IconCheck size={15} /></span> Klares Routing statt Chaos im Postfach</li>
-          </ul>
+          <h2 className="auth-hero">
+            Der Posteingang,<br />der sich <span className="auth-hero-hl">selbst sortiert</span>.
+          </h2>
+          <p>Jede Gästemail wird per KI kategorisiert, priorisiert und ans richtige Team geroutet — bevor jemand draufschaut.</p>
+
+          <div className="route-preview" aria-hidden="true">
+            <div className="rp-eyebrow">Automatisches Routing</div>
+            <div className="rp-row" style={{ animationDelay: '0.15s' }}>
+              <span className="rp-avatar rp-av-red">M</span>
+              <span className="rp-msg">„Klimaanlage in Zimmer 210 defekt“</span>
+              <span className="rp-pill rp-red">Beschwerde</span>
+              <span className="rp-arrow">→</span>
+              <span className="rp-team">Management</span>
+            </div>
+            <div className="rp-row" style={{ animationDelay: '0.3s' }}>
+              <span className="rp-avatar rp-av-green">L</span>
+              <span className="rp-msg">„Ist im Juli ein Zimmer frei?“</span>
+              <span className="rp-pill rp-green">Buchung</span>
+              <span className="rp-arrow">→</span>
+              <span className="rp-team">Reservierung</span>
+            </div>
+            <div className="rp-row" style={{ animationDelay: '0.45s' }}>
+              <span className="rp-avatar rp-av-blue">S</span>
+              <span className="rp-msg">„Können wir früher einchecken?“</span>
+              <span className="rp-pill rp-blue">Anfrage</span>
+              <span className="rp-arrow">→</span>
+              <span className="rp-team">Rezeption</span>
+            </div>
+          </div>
         </div>
         <div className="auth-brand-bottom">Für kleine & mittlere Hotels · DACH</div>
       </div>
