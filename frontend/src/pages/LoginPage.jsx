@@ -39,13 +39,13 @@ const LoginPage = ({ onLogin }) => {
         <div className="auth-brand-top">
           <div className="auth-logo">
             <IconLogo size={30} />
-            <span>Ospitara</span>
+            <span translate="no">Ospitara</span>
           </div>
         </div>
         <div className="auth-brand-mid">
-          <h2 className="auth-hero">
+          <div className="auth-hero">
             Der Posteingang,<br />der sich <span className="auth-hero-hl">selbst sortiert</span>.
-          </h2>
+          </div>
           <p>Jede Gästemail wird per KI kategorisiert, priorisiert und ans richtige Team geroutet — bevor jemand draufschaut.</p>
 
           <div className="route-preview" aria-hidden="true">

@@ -47,7 +47,7 @@
   letter-spacing: -0.02em;
 }
 
-.auth-brand-mid h2 {
+.auth-hero {
   font-family: var(--font-display);
   font-size: 40px;
   font-weight: 500;

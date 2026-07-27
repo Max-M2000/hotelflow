@@ -29,7 +29,7 @@ const Layout = ({ children, onLogout }) => {
           aria-label="Ospitara – zur Übersicht"
         >
           <IconLogo />
-          <span className="brand-name">Ospitara</span>
+          <span className="brand-name" translate="no">Ospitara</span>
         </button>
 
         <nav className="sidebar-nav">

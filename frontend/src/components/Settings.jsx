@@ -158,6 +158,7 @@ const Settings = () => {
                 onChange={(e) => setNewLabel(e.target.value)}
                 placeholder="Name, z. B. Frühstückszeiten…"
                 aria-label="Name der Vorlage"
+                autoComplete="off"
                 maxLength={40}
               />
               <textarea
