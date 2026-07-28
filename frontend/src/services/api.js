@@ -2,12 +2,54 @@ import axios from 'axios';
 
 const API_BASE_URL = 'https://hotelflow-production-738f.up.railway.app/api';
 
+export const TOKEN_KEY = 'hotelflow_token';
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+// Attach the stored JWT to every request.
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// On 401 the session is invalid/expired → clear it and bounce to login.
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem('hotelflow_auth');
+      localStorage.removeItem('hotelflow_user');
+      // Avoid a redirect loop if we're already on the login screen.
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.assign('/login');
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+export const authAPI = {
+  // Exchange credentials for a token; caller stores it.
+  login: async (email, password) => {
+    const response = await api.post('/auth/login', { email, password });
+    return response.data; // { token, user }
+  },
+
+  // Validate a stored token and fetch the current user.
+  me: async () => {
+    const response = await api.get('/auth/me');
+    return response.data; // { user }
+  },
+};
 
 export const ticketAPI = {
   // Get all tickets

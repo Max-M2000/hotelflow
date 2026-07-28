@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "jest --watch"
+    "seed:admin": "node src/scripts/seedAdmin.js",
+    "test": "jest --watch",
+    "test:ci": "jest --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -15,10 +17,12 @@
   "dependencies": {
     "@aws-sdk/client-sesv2": "^3.1095.0",
     "axios": "^1.18.1",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jest": "^30.4.2",
+    "jsonwebtoken": "^9.0.3",
     "mailparser": "^3.9.14",
     "mongoose": "^9.8.0",
     "nodemailer": "^9.0.3",

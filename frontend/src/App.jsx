@@ -7,20 +7,22 @@ import TicketDetail from './components/TicketDetail';
 import Routing from './components/Routing';
 import Reports from './components/Reports';
 import Settings from './components/Settings';
+import { TOKEN_KEY } from './services/api';
 import './styles/app.css';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
-    () => localStorage.getItem('hotelflow_auth') === 'true'
+    () => !!localStorage.getItem(TOKEN_KEY)
   );
 
-  const handleLogin = (email) => {
-    localStorage.setItem('hotelflow_auth', 'true');
-    localStorage.setItem('hotelflow_user', email);
+  const handleLogin = ({ token, user }) => {
+    localStorage.setItem(TOKEN_KEY, token);
+    if (user && user.email) localStorage.setItem('hotelflow_user', user.email);
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
+    localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem('hotelflow_auth');
     localStorage.removeItem('hotelflow_user');
     setIsAuthenticated(false);

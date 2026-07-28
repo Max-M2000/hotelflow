@@ -6,11 +6,14 @@ const { processIncomingEmail } = require('../services/emailIngestService');
 const { normalizeInboundEmail } = require('../services/inboundParser');
 const { sendReply } = require('../services/mailer');
 const Settings = require('../models/Settings');
+const { requireAuth, requireWebhookSecret } = require('../middleware/auth');
 
 // POST /api/inbound/email - Provider-agnostic inbound webhook (Channel #1)
 // Receives forwarded emails from an inbound-parse service (Postmark/Mailgun/
 // SendGrid/CloudMailin) or raw MIME, normalizes them, and runs the pipeline.
-router.post('/inbound/email', async (req, res) => {
+// Authenticated by a shared secret (?token= or X-Webhook-Token), NOT a user JWT,
+// because the caller is an external mail provider.
+router.post('/inbound/email', requireWebhookSecret, async (req, res) => {
   try {
     const data = await normalizeInboundEmail(req.body);
 
@@ -46,6 +49,10 @@ router.post('/inbound/email', async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
+// Everything below requires an authenticated user. The inbound webhook above
+// is the only public endpoint (guarded by its own shared secret).
+router.use(requireAuth);
 
 // POST /api/ingest-email - Full pipeline: Email → Categorize → Route → Create Ticket
 router.post('/ingest-email', async (req, res) => {

@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IconLogo } from '../components/Icons';
+import { authAPI } from '../services/api';
 import '../styles/auth.css';
-
-const DEMO_EMAIL = 'admin@ospitara.com';
-const DEMO_PASSWORD = 'demo123';
 
 const LoginPage = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -14,22 +12,21 @@ const LoginPage = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
-      onLogin(email);
+    try {
+      const { token, user } = await authAPI.login(email.trim(), password);
+      onLogin({ token, user });
       navigate('/');
-    } else {
-      setError('Falsche Zugangsdaten. Nutze die Demo-Daten unten.');
+    } catch (err) {
+      const msg =
+        err.response?.data?.error ||
+        (err.response ? 'Anmeldung fehlgeschlagen.' : 'Server nicht erreichbar.');
+      setError(msg);
       setLoading(false);
     }
-  };
-
-  const fillDemo = () => {
-    setEmail(DEMO_EMAIL);
-    setPassword(DEMO_PASSWORD);
   };
 
   return (
@@ -128,12 +125,6 @@ const LoginPage = ({ onLogin }) => {
               {loading ? 'Anmelden…' : 'Anmelden'}
             </button>
           </form>
-
-          <div className="auth-demo">
-            <div className="auth-demo-label">Demo-Zugang</div>
-            <code>admin@ospitara.com · demo123</code>
-            <button type="button" onClick={fillDemo} className="auth-demo-btn">Einsetzen</button>
-          </div>
         </div>
       </div>
     </div>
