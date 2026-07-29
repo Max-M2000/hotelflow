@@ -68,6 +68,8 @@ const Dashboard = () => {
   const [attention, setAttention] = useState('all'); // all | waiting | overdue
   const [sortBy, setSortBy] = useState('newest');
   const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState(() => new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   useEffect(() => {
     loadTickets();
@@ -100,6 +102,38 @@ const Dashboard = () => {
 
   const toggleAttention = (val) => setAttention((cur) => (cur === val ? 'all' : val));
 
+  // ----- Bulk selection -----
+  const toggleOne = (id, e) => {
+    e.stopPropagation();
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const clearSelection = () => setSelected(new Set());
+
+  const bulkUpdateStatus = async (newStatus) => {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    setBulkBusy(true);
+    setError(null);
+    try {
+      const results = await Promise.all(
+        ids.map((id) => ticketAPI.updateTicket(id, { status: newStatus }))
+      );
+      const byId = new Map(results.map((r) => [r._id, r]));
+      setTickets((prev) => prev.map((t) => byId.get(t._id) || t));
+      setSelected(new Set());
+    } catch (err) {
+      setError(err.response?.data?.error || err.message);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
   const filtered = tickets.filter((t) => {
     if (statusFilter !== 'all' && t.status !== statusFilter) return false;
     if (categoryFilter !== 'all' && t.category !== categoryFilter) return false;
@@ -122,6 +156,21 @@ const Dashboard = () => {
       return (isWaiting(y) - isWaiting(x)) || new Date(x.createdAt) - new Date(y.createdAt);
     return new Date(y.createdAt) - new Date(x.createdAt); // newest
   });
+
+  const allVisibleSelected = rows.length > 0 && rows.every((t) => selected.has(t._id));
+  const someVisibleSelected = rows.some((t) => selected.has(t._id));
+
+  const toggleAll = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (rows.length > 0 && rows.every((t) => next.has(t._id))) {
+        rows.forEach((t) => next.delete(t._id)); // all selected → clear visible
+      } else {
+        rows.forEach((t) => next.add(t._id)); // select all visible
+      }
+      return next;
+    });
+  };
 
   const counts = {
     all: tickets.length,
@@ -276,12 +325,44 @@ const Dashboard = () => {
         </div>
       )}
 
+      {/* Bulk action bar — appears once tickets are selected */}
+      {selected.size > 0 && (
+        <div className="bulkbar" role="region" aria-label="Aktionen für ausgewählte Tickets" aria-live="polite">
+          <span className="bulkbar-count" aria-busy={bulkBusy}>{selected.size} ausgewählt</span>
+          <span className="bulkbar-sep" aria-hidden="true" />
+          <span className="bulkbar-label">Status setzen:</span>
+          <button type="button" className="bulk-btn" disabled={bulkBusy} onClick={() => bulkUpdateStatus('open')}>
+            <span className="dot fill-blue" /> Offen
+          </button>
+          <button type="button" className="bulk-btn" disabled={bulkBusy} onClick={() => bulkUpdateStatus('in_progress')}>
+            <span className="dot fill-amber" /> In Bearbeitung
+          </button>
+          <button type="button" className="bulk-btn" disabled={bulkBusy} onClick={() => bulkUpdateStatus('closed')}>
+            <IconCheck size={14} /> Geschlossen
+          </button>
+          <button type="button" className="bulkbar-clear" onClick={clearSelection}>
+            Auswahl aufheben
+          </button>
+        </div>
+      )}
+
       {/* Table card */}
       <div className="table-card">
         <div className="table-scroll">
           <table className="tbl">
             <thead>
               <tr>
+                <th className="col-check">
+                  <input
+                    type="checkbox"
+                    className="tbl-check"
+                    aria-label="Alle sichtbaren Tickets auswählen"
+                    checked={allVisibleSelected}
+                    ref={(el) => { if (el) el.indeterminate = someVisibleSelected && !allVisibleSelected; }}
+                    onChange={toggleAll}
+                    disabled={loading || rows.length === 0}
+                  />
+                </th>
                 <th>Gast</th>
                 <th>Betreff</th>
                 <th>Kategorie</th>
@@ -294,10 +375,10 @@ const Dashboard = () => {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="8" className="tbl-empty"><div className="spinner" /></td></tr>
+                <tr><td colSpan="9" className="tbl-empty"><div className="spinner" /></td></tr>
               ) : rows.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="tbl-empty">
+                  <td colSpan="9" className="tbl-empty">
                     <div className="empty-title">Keine Tickets mit diesen Filtern</div>
                     <button type="button" className="empty-action" onClick={resetFilters}>
                       Filter zurücksetzen
@@ -311,10 +392,11 @@ const Dashboard = () => {
                   const sent = SENTIMENT[t.sentiment] || SENTIMENT.neutral;
                   const CatIcon = cat.Icon;
                   const overdue = isOverdue(t);
+                  const checked = selected.has(t._id);
                   return (
                     <tr
                       key={t._id}
-                      className={`tbl-row ${overdue ? 'row-overdue' : ''}`}
+                      className={`tbl-row ${overdue ? 'row-overdue' : ''} ${checked ? 'row-selected' : ''}`}
                       onClick={() => navigate(`/ticket/${t._id}`)}
                       tabIndex={0}
                       role="button"
@@ -326,6 +408,15 @@ const Dashboard = () => {
                         }
                       }}
                     >
+                      <td className="col-check" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          className="tbl-check"
+                          checked={checked}
+                          onChange={(e) => toggleOne(t._id, e)}
+                          aria-label={`Ticket von ${t.guestName} auswählen`}
+                        />
+                      </td>
                       <td>
                         <div className="guest">
                           <span className={`avatar ${tintFor(t.guestName)}`}>

@@ -1,18 +1,21 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { IconLogo, IconInbox, IconChart, IconSettings, IconLogout, IconUsers } from './Icons';
+import { IconLogo, IconInbox, IconChart, IconSettings, IconLogout, IconUsers, IconShield } from './Icons';
 import '../styles/layout.css';
 
 const Layout = ({ children, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const userEmail = localStorage.getItem('hotelflow_user') || 'admin@ospitara.com';
-  const initials = userEmail.charAt(0).toUpperCase();
+  const userName = localStorage.getItem('hotelflow_name') || 'Admin';
+  const isAdmin = localStorage.getItem('hotelflow_role') === 'admin';
+  const initials = (userName || userEmail).charAt(0).toUpperCase();
 
   const isTickets = location.pathname === '/' || location.pathname.startsWith('/ticket');
   const isRouting = location.pathname.startsWith('/routing');
   const isReports = location.pathname.startsWith('/reports');
   const isSettings = location.pathname.startsWith('/settings');
+  const isUsers = location.pathname.startsWith('/users');
 
   const handleLogout = () => {
     if (onLogout) onLogout();
@@ -66,13 +69,27 @@ const Layout = ({ children, onLogout }) => {
             <IconSettings size={18} />
             <span>Einstellungen</span>
           </button>
+
+          {isAdmin && (
+            <>
+              <div className="nav-section-label nav-section-label-admin">Administration</div>
+              <button
+                className={`nav-item ${isUsers ? 'nav-item-active' : ''}`}
+                onClick={() => navigate('/users')}
+                aria-current={isUsers ? 'page' : undefined}
+              >
+                <IconShield size={18} />
+                <span>Team verwalten</span>
+              </button>
+            </>
+          )}
         </nav>
 
         <div className="sidebar-footer">
           <div className="user-card">
             <div className="user-avatar">{initials}</div>
             <div className="user-info">
-              <div className="user-name">Admin</div>
+              <div className="user-name">{userName}{isAdmin && <span className="user-role-tag">Admin</span>}</div>
               <div className="user-email">{userEmail}</div>
             </div>
             <button className="logout-btn" onClick={handleLogout} title="Abmelden" aria-label="Abmelden">

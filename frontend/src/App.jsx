@@ -7,6 +7,7 @@ import TicketDetail from './components/TicketDetail';
 import Routing from './components/Routing';
 import Reports from './components/Reports';
 import Settings from './components/Settings';
+import Users from './components/Users';
 import { TOKEN_KEY } from './services/api';
 import './styles/app.css';
 
@@ -18,6 +19,8 @@ function App() {
   const handleLogin = ({ token, user }) => {
     localStorage.setItem(TOKEN_KEY, token);
     if (user && user.email) localStorage.setItem('hotelflow_user', user.email);
+    if (user && user.name) localStorage.setItem('hotelflow_name', user.name);
+    if (user && user.role) localStorage.setItem('hotelflow_role', user.role);
     setIsAuthenticated(true);
   };
 
@@ -25,6 +28,8 @@ function App() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem('hotelflow_auth');
     localStorage.removeItem('hotelflow_user');
+    localStorage.removeItem('hotelflow_name');
+    localStorage.removeItem('hotelflow_role');
     setIsAuthenticated(false);
   };
 
@@ -47,6 +52,7 @@ function App() {
         <Route path="/routing" element={requireAuth(<Routing />)} />
         <Route path="/reports" element={requireAuth(<Reports />)} />
         <Route path="/settings" element={requireAuth(<Settings />)} />
+        <Route path="/users" element={requireAuth(<Users />)} />
       </Routes>
     </Router>
   );

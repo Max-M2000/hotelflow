@@ -1,4 +1,4 @@
-const { requireAuth, requireWebhookSecret } = require('../middleware/auth');
+const { requireAuth, requireAdmin, requireWebhookSecret } = require('../middleware/auth');
 const { signToken } = require('../services/authService');
 
 function mockRes() {
@@ -57,6 +57,34 @@ describe('requireAuth', () => {
     expect(next).toHaveBeenCalled();
     expect(req.user.sub).toBe('u1');
     expect(req.user.role).toBe('admin');
+  });
+});
+
+describe('requireAdmin', () => {
+  test('rejects a non-admin user (403)', () => {
+    const req = { user: { sub: 'u1', role: 'agent' } };
+    const res = mockRes();
+    const next = jest.fn();
+    requireAdmin(req, res, next);
+    expect(next).not.toHaveBeenCalled();
+    expect(res.statusCode).toBe(403);
+  });
+
+  test('rejects when no user is attached (403)', () => {
+    const req = {};
+    const res = mockRes();
+    const next = jest.fn();
+    requireAdmin(req, res, next);
+    expect(next).not.toHaveBeenCalled();
+    expect(res.statusCode).toBe(403);
+  });
+
+  test('lets an admin through', () => {
+    const req = { user: { sub: 'u1', role: 'admin' } };
+    const res = mockRes();
+    const next = jest.fn();
+    requireAdmin(req, res, next);
+    expect(next).toHaveBeenCalled();
   });
 });
 

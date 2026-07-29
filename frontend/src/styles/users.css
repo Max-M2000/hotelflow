@@ -1,0 +1,236 @@
+/* Team-Verwaltung (User-Management) */
+
+.usr-add-card {
+  padding: 18px 20px 20px;
+  max-width: 860px;
+}
+
+.usr-add-form {
+  margin-top: 12px;
+}
+
+.usr-add-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1.4fr 0.9fr 1fr;
+  gap: 12px;
+}
+
+.usr-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.usr-add-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.usr-hint {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.4;
+  flex: 1;
+  min-width: 200px;
+}
+
+/* List */
+.usr-list-card {
+  padding: 18px 20px 8px;
+  max-width: 860px;
+}
+
+.usr-list {
+  list-style: none;
+  margin: 14px 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.usr-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.usr-row:hover {
+  border-color: var(--border);
+}
+
+.usr-row-inactive {
+  opacity: 0.62;
+}
+
+.usr-main {
+  min-width: 0;
+}
+
+.usr-name-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.usr-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.usr-you {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+.usr-inactive-tag {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-3);
+  background: var(--surface-3);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+.usr-email {
+  font-size: 12.5px;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.usr-meta {
+  text-align: right;
+}
+
+.usr-lastlogin {
+  font-size: 12px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.usr-role-wrap {
+  min-width: 128px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.usr-role-select {
+  width: auto;
+  min-width: 128px;
+  font-weight: 600;
+}
+
+.usr-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.usr-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.usr-icon-btn:hover:not(:disabled) {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.usr-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Active/inactive toggle rendered as a pill switch */
+.usr-toggle {
+  width: 30px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--border-strong);
+  position: relative;
+  display: inline-block;
+  transition: background 0.15s ease;
+}
+
+.usr-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow-xs);
+  transition: transform 0.15s ease;
+}
+
+.usr-toggle-on {
+  background: var(--dot-positive);
+}
+
+.usr-toggle-on::after {
+  transform: translateX(12px);
+}
+
+/* Inline password reset row spans the full grid width */
+.usr-pw-row {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.usr-pw-row .field-input {
+  flex: 1;
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .usr-add-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .usr-row {
+    grid-template-columns: auto 1fr auto;
+  }
+  .usr-meta,
+  .usr-role-wrap {
+    display: none;
+  }
+}

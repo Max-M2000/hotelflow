@@ -121,6 +121,32 @@ export const routingRuleAPI = {
   },
 };
 
+export const userAPI = {
+  // List all users (admin only)
+  getUsers: async () => {
+    const response = await api.get('/users');
+    return response.data;
+  },
+
+  // Create a user (admin only)
+  createUser: async (user) => {
+    const response = await api.post('/users', user);
+    return response.data;
+  },
+
+  // Update a user: name / role / active / password (admin only)
+  updateUser: async (id, updates) => {
+    const response = await api.patch(`/users/${id}`, updates);
+    return response.data;
+  },
+
+  // Delete a user (admin only)
+  deleteUser: async (id) => {
+    const response = await api.delete(`/users/${id}`);
+    return response.data;
+  },
+};
+
 export const settingsAPI = {
   // Get signature + reply templates
   get: async () => {

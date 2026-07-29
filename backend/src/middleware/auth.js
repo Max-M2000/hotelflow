@@ -21,6 +21,17 @@ function requireAuth(req, res, next) {
 }
 
 /**
+ * Gate for admin-only routes (e.g. user management). Must run AFTER requireAuth
+ * so req.user is populated.
+ */
+function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Nur Administratoren dürfen das.' });
+  }
+  return next();
+}
+
+/**
  * Gate for the inbound-email webhook, which is called by an external mail
  * provider that cannot send a user JWT. Instead we require a shared secret,
  * accepted either as ?token=... or an X-Webhook-Token header — provider-agnostic.
@@ -49,4 +60,4 @@ function requireWebhookSecret(req, res, next) {
   return next();
 }
 
-module.exports = { requireAuth, requireWebhookSecret };
+module.exports = { requireAuth, requireAdmin, requireWebhookSecret };
