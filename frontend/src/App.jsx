@@ -41,6 +41,13 @@ function App() {
       <Navigate to="/login" />
     );
 
+  // Admin-only routes: authenticated + role admin, otherwise bounce home.
+  const requireAdminRoute = (element) => {
+    if (!isAuthenticated) return <Navigate to="/login" />;
+    if (localStorage.getItem('hotelflow_role') !== 'admin') return <Navigate to="/" />;
+    return <Layout onLogout={handleLogout}>{element}</Layout>;
+  };
+
   return (
     <Router>
       <Routes>
@@ -53,7 +60,7 @@ function App() {
         <Route path="/routing" element={requireAuth(<Routing />)} />
         <Route path="/reports" element={requireAuth(<Reports />)} />
         <Route path="/settings" element={requireAuth(<Settings />)} />
-        <Route path="/einrichtung" element={requireAuth(<EmailSetup />)} />
+        <Route path="/einrichtung" element={requireAdminRoute(<EmailSetup />)} />
         <Route path="/users" element={requireAuth(<Users />)} />
       </Routes>
     </Router>

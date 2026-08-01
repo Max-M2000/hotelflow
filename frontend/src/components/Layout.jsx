@@ -63,14 +63,6 @@ const Layout = ({ children, onLogout }) => {
             <span>Berichte</span>
           </button>
           <button
-            className={`nav-item ${isEinrichtung ? 'nav-item-active' : ''}`}
-            onClick={() => navigate('/einrichtung')}
-            aria-current={isEinrichtung ? 'page' : undefined}
-          >
-            <IconSend size={18} />
-            <span>Einrichtung</span>
-          </button>
-          <button
             className={`nav-item ${isSettings ? 'nav-item-active' : ''}`}
             onClick={() => navigate('/settings')}
             aria-current={isSettings ? 'page' : undefined}
@@ -82,6 +74,14 @@ const Layout = ({ children, onLogout }) => {
           {isAdmin && (
             <>
               <div className="nav-section-label nav-section-label-admin">Administration</div>
+              <button
+                className={`nav-item ${isEinrichtung ? 'nav-item-active' : ''}`}
+                onClick={() => navigate('/einrichtung')}
+                aria-current={isEinrichtung ? 'page' : undefined}
+              >
+                <IconSend size={18} />
+                <span>Einrichtung</span>
+              </button>
               <button
                 className={`nav-item ${isUsers ? 'nav-item-active' : ''}`}
                 onClick={() => navigate('/users')}

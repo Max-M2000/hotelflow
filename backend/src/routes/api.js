@@ -7,7 +7,7 @@ const { normalizeInboundEmail } = require('../services/inboundParser');
 const { sendReply } = require('../services/mailer');
 const { draftReply } = require('../services/replyDrafter');
 const Settings = require('../models/Settings');
-const { requireAuth, requireWebhookSecret } = require('../middleware/auth');
+const { requireAuth, requireAdmin, requireWebhookSecret } = require('../middleware/auth');
 
 // POST /api/inbound/email - Provider-agnostic inbound webhook (Channel #1)
 // Receives forwarded emails from an inbound-parse service (Postmark/Mailgun/
@@ -58,7 +58,7 @@ router.use(requireAuth);
 // GET /api/setup/info - Forwarding address + inbound connection status.
 // Powers the in-app "Einrichtung" guide: shows the hotel which address to
 // forward to and whether emails are already arriving.
-router.get('/setup/info', async (req, res) => {
+router.get('/setup/info', requireAdmin, async (req, res) => {
   try {
     const last = await Ticket.findOne().sort({ createdAt: -1 }).select('createdAt');
     const totalTickets = await Ticket.countDocuments();
