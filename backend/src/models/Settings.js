@@ -11,6 +11,13 @@ const settingsSchema = new mongoose.Schema(
       default:
         'Bei weiteren Fragen stehen wir Ihnen jederzeit gern zur Verfügung.\n\nHerzliche Grüße\nIhr Team',
     },
+    // Free-text house facts the hotel maintains (check-in/out times, WLAN,
+    // parking, breakfast, pet policy, ...). Fed into the AI reply drafter so it
+    // answers with the hotel's real information instead of leaving placeholders.
+    houseInfo: {
+      type: String,
+      default: '',
+    },
     templates: [
       {
         label: { type: String, required: true },

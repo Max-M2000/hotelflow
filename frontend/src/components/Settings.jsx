@@ -8,6 +8,10 @@ import '../styles/settings.css';
 const Settings = () => {
   const [signature, setSignature] = useState('');
   const [savedSignature, setSavedSignature] = useState('');
+  const [houseInfo, setHouseInfo] = useState('');
+  const [savedHouseInfo, setSavedHouseInfo] = useState('');
+  const [savingHouse, setSavingHouse] = useState(false);
+  const [houseSaved, setHouseSaved] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,6 +31,8 @@ const Settings = () => {
       const data = await settingsAPI.get();
       setSignature(data.signature || '');
       setSavedSignature(data.signature || '');
+      setHouseInfo(data.houseInfo || '');
+      setSavedHouseInfo(data.houseInfo || '');
       setTemplates(data.templates || []);
       setError(null);
     } catch (err) {
@@ -48,6 +54,21 @@ const Settings = () => {
       setError(err.response?.data?.error || err.message);
     } finally {
       setSavingSig(false);
+    }
+  };
+
+  const saveHouseInfo = async () => {
+    setSavingHouse(true);
+    setError(null);
+    setHouseSaved(false);
+    try {
+      const data = await settingsAPI.update({ houseInfo });
+      setSavedHouseInfo(data.houseInfo || '');
+      setHouseSaved(true);
+    } catch (err) {
+      setError(err.response?.data?.error || err.message);
+    } finally {
+      setSavingHouse(false);
     }
   };
 
@@ -78,13 +99,14 @@ const Settings = () => {
   };
 
   const sigDirty = signature !== savedSignature;
+  const houseDirty = houseInfo !== savedHouseInfo;
 
   return (
     <div className="page">
       <div className="detail-head">
         <h1 className="detail-title">Einstellungen</h1>
         <p className="settings-subtitle">
-          Richte Signatur und Antwort-Vorlagen ein — sie stehen deinem Team beim Antworten mit einem Klick zur Verfügung.
+          Signatur, Hausinformationen und Antwort-Vorlagen einrichten. Sie stehen deinem Team beim Antworten mit einem Klick zur Verfügung und fließen in die KI-Antwortvorschläge ein.
         </p>
       </div>
 
@@ -113,6 +135,28 @@ const Settings = () => {
                 <IconCheck size={15} /> {savingSig ? 'Speichern…' : 'Signatur speichern'}
               </button>
               {sigSaved && !sigDirty && <span className="set-saved" role="status">Gespeichert ✓</span>}
+            </div>
+          </div>
+
+          {/* Hausinformationen */}
+          <div className="card set-card">
+            <div className="card-title">Hausinformationen</div>
+            <p className="set-hint">
+              Ihre festen Fakten (Check-in/-out, WLAN, Parken, Frühstück, Haustiere …). Die <strong>KI-Antwortvorschläge</strong> nutzen diese Angaben, um Gästen echte Auskünfte zu geben statt Platzhalter. Was hier nicht steht, bleibt im Entwurf ein Platzhalter zum Ausfüllen.
+            </p>
+            <textarea
+              className="note-input set-textarea"
+              value={houseInfo}
+              onChange={(e) => { setHouseInfo(e.target.value); setHouseSaved(false); }}
+              rows="6"
+              aria-label="Hausinformationen"
+              placeholder={'Check-in ab 15 Uhr, Check-out bis 11 Uhr.\nWLAN kostenlos, Passwort an der Rezeption.\nParkplätze am Haus, 10 € pro Nacht.\nFrühstück 7 bis 10 Uhr.\nHaustiere auf Anfrage.'}
+            />
+            <div className="set-actions">
+              <button className="btn-primary" onClick={saveHouseInfo} disabled={savingHouse || !houseDirty}>
+                <IconCheck size={15} /> {savingHouse ? 'Speichern…' : 'Hausinformationen speichern'}
+              </button>
+              {houseSaved && !houseDirty && <span className="set-saved" role="status">Gespeichert ✓</span>}
             </div>
           </div>
 
