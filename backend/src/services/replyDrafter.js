@@ -17,11 +17,11 @@ const getOpenAIClient = () => {
 // Per-hotel tone presets: control salutation, formality and closing.
 const STYLE_INSTRUCTIONS = {
   formal:
-    'Anrede förmlich: "Sehr geehrter Herr [Nachname]" bzw. "Sehr geehrte Frau [Nachname]". Ist der Name oder das Geschlecht unklar, schreibe "Sehr geehrte Damen und Herren". Ton: sachlich und höflich-distanziert, durchgängig Sie. Grußformel: "Mit freundlichen Grüßen".',
+    'Ton: sachlich und höflich-distanziert, durchgängig Sie. Grußformel: "Mit freundlichen Grüßen". Anrede: Sprich den Gast mit Namen an, wenn im Absender oder in der Nachricht (z. B. Grußzeile) ein Name erkennbar ist – "Sehr geehrter Herr [Nachname]" bzw. "Sehr geehrte Frau [Nachname]"; handelt es sich um eine Familie, "Sehr geehrte Familie [Nachname]". Nur wenn wirklich kein Name erkennbar ist: "Sehr geehrte Damen und Herren".',
   professional:
-    'Anrede freundlich-professionell: "Guten Tag Herr/Frau [Nachname]". Ist der Name unklar, schreibe nur "Guten Tag". Ton: warm und professionell, Sie. Grußformel: "Mit freundlichen Grüßen".',
+    'Ton: warm und professionell, Sie. Grußformel: "Mit freundlichen Grüßen". Anrede mit Namen, wenn erkennbar – "Guten Tag Herr/Frau [Nachname]" bzw. bei einer Familie "Guten Tag Familie [Nachname]". Nur ohne erkennbaren Namen: "Guten Tag".',
   casual:
-    'Anrede locker und herzlich: "Hallo [Vorname]". Ist der Name unklar, schreibe nur "Hallo". Ton: herzlich und persönlich, aber respektvoll, Sie. Grußformel: "Herzliche Grüße".',
+    'Ton: herzlich und persönlich, aber respektvoll, Sie. Grußformel: "Herzliche Grüße". Anrede locker mit Vornamen, wenn erkennbar – "Hallo [Vorname]"; sonst "Hallo".',
 };
 
 /**
