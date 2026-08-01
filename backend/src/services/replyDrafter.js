@@ -17,11 +17,11 @@ const getOpenAIClient = () => {
 // Per-hotel tone presets: control salutation, formality and closing.
 const STYLE_INSTRUCTIONS = {
   formal:
-    'Ton: sachlich und höflich-distanziert, durchgängig Sie. Grußformel: "Mit freundlichen Grüßen". Anrede: Sprich den Gast mit Namen an, wenn im Absender oder in der Nachricht (z. B. Grußzeile) ein Name erkennbar ist – "Sehr geehrter Herr [Nachname]" bzw. "Sehr geehrte Frau [Nachname]"; handelt es sich um eine Familie, "Sehr geehrte Familie [Nachname]". Nur wenn wirklich kein Name erkennbar ist: "Sehr geehrte Damen und Herren".',
+    'Ton: sachlich und höflich-distanziert, durchgängig Sie. Anrede: Sprich den Gast mit Namen an, wenn im Absender oder in der Nachricht (z. B. Grußzeile) ein Name erkennbar ist – "Sehr geehrter Herr [Nachname]" bzw. "Sehr geehrte Frau [Nachname]"; handelt es sich um eine Familie, "Sehr geehrte Familie [Nachname]". Nur wenn wirklich kein Name erkennbar ist: "Sehr geehrte Damen und Herren".',
   professional:
-    'Ton: warm und professionell, Sie. Grußformel: "Mit freundlichen Grüßen". Anrede mit Namen, wenn erkennbar – "Guten Tag Herr/Frau [Nachname]" bzw. bei einer Familie "Guten Tag Familie [Nachname]". Nur ohne erkennbaren Namen: "Guten Tag".',
+    'Ton: warm und professionell, Sie. Anrede mit Namen, wenn erkennbar – "Guten Tag Herr/Frau [Nachname]" bzw. bei einer Familie "Guten Tag Familie [Nachname]". Nur ohne erkennbaren Namen: "Guten Tag".',
   casual:
-    'Ton: herzlich und persönlich, aber respektvoll, Sie. Grußformel: "Herzliche Grüße". Anrede locker mit Vornamen, wenn erkennbar – "Hallo [Vorname]"; sonst "Hallo".',
+    'Ton: herzlich und persönlich, aber respektvoll, Sie. Anrede locker mit Vornamen, wenn erkennbar – "Hallo [Vorname]"; sonst "Hallo".',
 };
 
 /**
@@ -77,7 +77,7 @@ Regeln:
 - Fragt der Gast nach etwas, das nicht hinterlegt ist (z. B. Flughafen-Transfer, Pool, Late Check-out, ein bestimmter Preis oder eine Uhrzeit), dann behaupte weder Ja noch Nein. Formuliere offen und setze einen Platzhalter, den ein Mensch ausfüllt, z. B.: "Zu einem Flughafen-Transfer gebe ich Ihnen gern gesondert Bescheid: [Bieten wir einen Transfer an, und zu welchem Preis?]".
 - Erfinde generell keine Fakten (Preise, Verfügbarkeiten, Uhrzeiten, Zimmernummern, Ausstattung, Hausregeln). Im Zweifel lieber einen Platzhalter setzen als etwas annehmen.
 - Halte die Antwort kurz (etwa 3 bis 6 Sätze).
-- Schließe mit der zum Stil passenden Grußformel in einer eigenen Zeile. Füge KEINEN Namen und KEINE Signatur an – das ergänzt der Mitarbeiter selbst.
+- Beende mit dem letzten inhaltlichen Satz. Schreibe KEINE Grußformel (kein "Mit freundlichen Grüßen") und KEINEN Namen – die Signatur wird automatisch angehängt.
 - Gib NUR den Antworttext aus: keine Vorbemerkung, kein Betreff, keine Anführungszeichen.`;
 
   const response = await client.chat.completions.create({

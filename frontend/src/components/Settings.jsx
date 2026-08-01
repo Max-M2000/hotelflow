@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { settingsAPI } from '../services/api';
+import { settingsAPI, authAPI } from '../services/api';
 import { IconPlus, IconTrash, IconCheck, IconSend } from './Icons';
 import '../styles/dashboard.css';
 import '../styles/detail.css';
@@ -8,6 +8,10 @@ import '../styles/settings.css';
 const Settings = () => {
   const [signature, setSignature] = useState('');
   const [savedSignature, setSavedSignature] = useState('');
+  const [mySignature, setMySignature] = useState('');
+  const [savedMySignature, setSavedMySignature] = useState('');
+  const [savingMySig, setSavingMySig] = useState(false);
+  const [mySigSaved, setMySigSaved] = useState(false);
   const [houseInfo, setHouseInfo] = useState('');
   const [savedHouseInfo, setSavedHouseInfo] = useState('');
   const [savingHouse, setSavingHouse] = useState(false);
@@ -37,6 +41,12 @@ const Settings = () => {
       const data = await settingsAPI.get();
       setSignature(data.signature || '');
       setSavedSignature(data.signature || '');
+      try {
+        const meRes = await authAPI.me();
+        const mySig = (meRes.user && meRes.user.signature) || '';
+        setMySignature(mySig);
+        setSavedMySignature(mySig);
+      } catch { /* Profil optional – Seite funktioniert auch ohne */ }
       setHouseInfo(data.houseInfo || '');
       setSavedHouseInfo(data.houseInfo || '');
       setReplyStyle(data.replyStyle || 'professional');
@@ -64,6 +74,22 @@ const Settings = () => {
       setError(err.response?.data?.error || err.message);
     } finally {
       setSavingSig(false);
+    }
+  };
+
+  const saveMySignature = async () => {
+    setSavingMySig(true);
+    setError(null);
+    setMySigSaved(false);
+    try {
+      const data = await authAPI.updateMe({ signature: mySignature });
+      const s = (data.user && data.user.signature) || '';
+      setSavedMySignature(s);
+      setMySigSaved(true);
+    } catch (err) {
+      setError(err.response?.data?.error || err.message);
+    } finally {
+      setSavingMySig(false);
     }
   };
 
@@ -125,6 +151,7 @@ const Settings = () => {
   };
 
   const sigDirty = signature !== savedSignature;
+  const mySigDirty = mySignature !== savedMySignature;
   const houseDirty = houseInfo !== savedHouseInfo;
   const styleDirty = replyStyle !== savedReplyStyle || styleNotes !== savedStyleNotes;
 
@@ -143,11 +170,33 @@ const Settings = () => {
         <div className="settings-loading"><div className="spinner" /></div>
       ) : (
         <div className="settings-stack">
-          {/* Signature */}
+          {/* Meine persönliche Signatur */}
           <div className="card set-card">
-            <div className="card-title">Signatur</div>
+            <div className="card-title">Meine Signatur</div>
             <p className="set-hint">
-              Wird über den Button „Signatur“ ans Ende einer Antwort eingefügt. Nutze <code>{'{name}'}</code> für den Vornamen des Gastes.
+              Ihre persönliche Signatur (Grußformel + Name/Kontakt). Sie wird an Ihre Antworten und die <strong>KI-Vorschläge</strong> automatisch angehängt. Leer = Standard-Signatur des Hauses.
+            </p>
+            <textarea
+              className="note-input set-textarea"
+              value={mySignature}
+              onChange={(e) => { setMySignature(e.target.value); setMySigSaved(false); }}
+              rows="4"
+              aria-label="Meine Signatur"
+              placeholder={'Mit freundlichen Grüßen\n\nMax Mundt\nRezeption · Hotel Lindenhof\nTel. 030 1234567'}
+            />
+            <div className="set-actions">
+              <button className="btn-primary" onClick={saveMySignature} disabled={savingMySig || !mySigDirty}>
+                <IconCheck size={15} /> {savingMySig ? 'Speichern…' : 'Meine Signatur speichern'}
+              </button>
+              {mySigSaved && !mySigDirty && <span className="set-saved" role="status">Gespeichert ✓</span>}
+            </div>
+          </div>
+
+          {/* Haus-Standard-Signatur (Fallback) */}
+          <div className="card set-card">
+            <div className="card-title">Standard-Signatur (Haus)</div>
+            <p className="set-hint">
+              Fallback für Antworten von Mitarbeitenden ohne eigene Signatur. Enthält Grußformel + Name/Kontakt des Hauses.
             </p>
             <textarea
               className="note-input set-textarea"

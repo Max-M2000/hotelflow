@@ -44,6 +44,12 @@ export const authAPI = {
     return response.data; // { token, user }
   },
 
+  // Update the current user's own profile (name, personal signature).
+  updateMe: async (updates) => {
+    const response = await api.patch('/auth/me', updates);
+    return response.data; // { user }
+  },
+
   // Validate a stored token and fetch the current user.
   me: async () => {
     const response = await api.get('/auth/me');

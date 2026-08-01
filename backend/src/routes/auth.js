@@ -48,4 +48,21 @@ router.get('/me', requireAuth, async (req, res) => {
   }
 });
 
+// PATCH /api/auth/me - update the current user's own profile (name, signature)
+router.patch('/me', requireAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.sub);
+    if (!user || !user.active) {
+      return res.status(401).json({ error: 'Sitzung ungültig.' });
+    }
+    const { name, signature } = req.body || {};
+    if (name !== undefined) user.name = String(name).trim();
+    if (signature !== undefined) user.signature = String(signature);
+    await user.save();
+    return res.json({ user: user.toJSON() });
+  } catch (error) {
+    return res.status(500).json({ error: 'Profil konnte nicht gespeichert werden.' });
+  }
+});
+
 module.exports = router;

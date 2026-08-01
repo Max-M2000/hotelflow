@@ -7,6 +7,7 @@ const { normalizeInboundEmail } = require('../services/inboundParser');
 const { sendReply } = require('../services/mailer');
 const { draftReply } = require('../services/replyDrafter');
 const Settings = require('../models/Settings');
+const User = require('../models/User');
 const { requireAuth, requireAdmin, requireWebhookSecret } = require('../middleware/auth');
 
 // POST /api/inbound/email - Provider-agnostic inbound webhook (Channel #1)
@@ -81,6 +82,7 @@ router.post('/tickets/:id/suggest-reply', async (req, res) => {
       return res.status(404).json({ error: 'Ticket not found' });
     }
     const settings = await Settings.getSingleton();
+    const me = await User.findById(req.user.sub).select('signature');
     const draft = await draftReply({
       guestName: ticket.guestName,
       subject: ticket.subject,
@@ -94,7 +96,12 @@ router.post('/tickets/:id/suggest-reply', async (req, res) => {
     if (!draft) {
       return res.status(502).json({ error: 'Entwurf konnte nicht erstellt werden.' });
     }
-    res.json({ draft });
+    // Signatur automatisch anhängen: persönliche des Mitarbeiters, sonst Haus-Signatur.
+    const signature =
+      (me && me.signature && me.signature.trim()) ||
+      (settings.signature && settings.signature.trim()) ||
+      'Mit freundlichen Grüßen';
+    res.json({ draft: `${draft}\n\n${signature}` });
   } catch (error) {
     console.error('[SuggestReply] Error:', error.message);
     res.status(500).json({ error: error.message });

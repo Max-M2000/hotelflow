@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ticketAPI, settingsAPI } from '../services/api';
+import { ticketAPI, settingsAPI, authAPI } from '../services/api';
 import { IconArrowLeft, IconAlert, IconCalendar, IconHelp, IconDots, IconSend, IconMessage } from './Icons';
 import '../styles/detail.css';
 
@@ -65,6 +65,14 @@ const TicketDetail = () => {
         setSignature(s.signature || '');
       })
       .catch(() => {}); // non-blocking — reply still works without templates
+    // Prefer the logged-in user's personal signature for the "Signatur" button.
+    authAPI
+      .me()
+      .then((res) => {
+        const mySig = res.user && res.user.signature;
+        if (mySig && mySig.trim()) setSignature(mySig);
+      })
+      .catch(() => {});
   }, []);
 
   const loadTicket = async () => {

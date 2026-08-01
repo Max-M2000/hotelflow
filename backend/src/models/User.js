@@ -26,6 +26,12 @@ const userSchema = new mongoose.Schema(
       enum: ['admin', 'agent'],
       default: 'agent',
     },
+    // Persönliche Signatur des Mitarbeiters (Grußformel + Name/Kontakt).
+    // Wird an Antworten/KI-Entwürfe angehängt; leer = Haus-Standard-Signatur.
+    signature: {
+      type: String,
+      default: '',
+    },
     active: {
       type: Boolean,
       default: true,
