@@ -5,6 +5,7 @@ const RoutingRule = require('../models/RoutingRule');
 const { processIncomingEmail } = require('../services/emailIngestService');
 const { normalizeInboundEmail } = require('../services/inboundParser');
 const { sendReply } = require('../services/mailer');
+const { draftReply } = require('../services/replyDrafter');
 const Settings = require('../models/Settings');
 const { requireAuth, requireWebhookSecret } = require('../middleware/auth');
 
@@ -67,6 +68,31 @@ router.get('/setup/info', async (req, res) => {
       totalTickets,
     });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/tickets/:id/suggest-reply - KI-Antwort-Entwurf (wird NICHT gesendet,
+// nur als Vorschlag zurückgegeben; ein Mensch prüft, passt an und sendet).
+router.post('/tickets/:id/suggest-reply', async (req, res) => {
+  try {
+    const ticket = await Ticket.findById(req.params.id);
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+    const draft = await draftReply({
+      guestName: ticket.guestName,
+      subject: ticket.subject,
+      body: ticket.body,
+      category: ticket.category,
+      sentiment: ticket.sentiment,
+    });
+    if (!draft) {
+      return res.status(502).json({ error: 'Entwurf konnte nicht erstellt werden.' });
+    }
+    res.json({ draft });
+  } catch (error) {
+    console.error('[SuggestReply] Error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });

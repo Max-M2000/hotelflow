@@ -465,3 +465,29 @@
     position: static;
   }
 }
+
+/* KI-Antwort vorschlagen */
+.suggest-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 4px 0 10px;
+}
+.btn-suggest {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-md, 6px);
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.btn-suggest:hover:not(:disabled) { background: var(--accent); color: #fff; }
+.btn-suggest:disabled { opacity: 0.6; cursor: not-allowed; }
+.suggest-hint { font-size: 13px; color: var(--color-text-secondary, #666); }

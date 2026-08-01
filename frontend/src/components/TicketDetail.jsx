@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ticketAPI, settingsAPI } from '../services/api';
-import { IconArrowLeft, IconAlert, IconCalendar, IconHelp, IconDots, IconSend } from './Icons';
+import { IconArrowLeft, IconAlert, IconCalendar, IconHelp, IconDots, IconSend, IconMessage } from './Icons';
 import '../styles/detail.css';
 
 const CATEGORY = {
@@ -47,6 +47,8 @@ const TicketDetail = () => {
   const [sendingReply, setSendingReply] = useState(false);
   const [replyError, setReplyError] = useState(null);
   const [replySuccess, setReplySuccess] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestError, setSuggestError] = useState(null);
   const [templates, setTemplates] = useState([]);
   const [signature, setSignature] = useState('');
 
@@ -108,6 +110,19 @@ const TicketDetail = () => {
       if (!prev.trim()) return text;
       return prev.endsWith('\n') ? prev + text : prev + '\n' + text;
     });
+  };
+
+  const handleSuggest = async () => {
+    setSuggesting(true);
+    setSuggestError(null);
+    try {
+      const { draft } = await ticketAPI.suggestReply(id);
+      if (draft) setReplyBody(draft);
+    } catch (err) {
+      setSuggestError(err.response?.data?.error || err.message);
+    } finally {
+      setSuggesting(false);
+    }
   };
 
   const handleSendReply = async (e) => {
@@ -227,6 +242,18 @@ const TicketDetail = () => {
               />
 
               <label className="field-label" htmlFor="reply-body">Nachricht an {ticket.guestEmail}</label>
+              <div className="suggest-row">
+                <button
+                  type="button"
+                  className="btn-suggest"
+                  onClick={handleSuggest}
+                  disabled={suggesting}
+                >
+                  <IconMessage size={15} /> {suggesting ? 'Entwurf wird erstellt…' : 'KI-Antwort vorschlagen'}
+                </button>
+                <span className="suggest-hint">Vorschlag prüfen und bei Bedarf anpassen, bevor Sie senden.</span>
+              </div>
+              {suggestError && <div className="banner-error" role="alert">{suggestError}</div>}
               <div className="tpl-row" role="group" aria-label="Antwort-Vorlagen einfügen">
                 <span className="tpl-label">Vorlagen:</span>
                 {templates.map((tpl, i) => (
