@@ -7,6 +7,7 @@ import TicketDetail from './components/TicketDetail';
 import Routing from './components/Routing';
 import Reports from './components/Reports';
 import Settings from './components/Settings';
+import EmailSetup from './components/EmailSetup';
 import Users from './components/Users';
 import { TOKEN_KEY } from './services/api';
 import './styles/app.css';
@@ -52,6 +53,7 @@ function App() {
         <Route path="/routing" element={requireAuth(<Routing />)} />
         <Route path="/reports" element={requireAuth(<Reports />)} />
         <Route path="/settings" element={requireAuth(<Settings />)} />
+        <Route path="/einrichtung" element={requireAuth(<EmailSetup />)} />
         <Route path="/users" element={requireAuth(<Users />)} />
       </Routes>
     </Router>
