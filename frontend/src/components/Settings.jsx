@@ -12,6 +12,12 @@ const Settings = () => {
   const [savedHouseInfo, setSavedHouseInfo] = useState('');
   const [savingHouse, setSavingHouse] = useState(false);
   const [houseSaved, setHouseSaved] = useState(false);
+  const [replyStyle, setReplyStyle] = useState('professional');
+  const [savedReplyStyle, setSavedReplyStyle] = useState('professional');
+  const [styleNotes, setStyleNotes] = useState('');
+  const [savedStyleNotes, setSavedStyleNotes] = useState('');
+  const [savingStyle, setSavingStyle] = useState(false);
+  const [styleSaved, setStyleSaved] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,6 +39,10 @@ const Settings = () => {
       setSavedSignature(data.signature || '');
       setHouseInfo(data.houseInfo || '');
       setSavedHouseInfo(data.houseInfo || '');
+      setReplyStyle(data.replyStyle || 'professional');
+      setSavedReplyStyle(data.replyStyle || 'professional');
+      setStyleNotes(data.styleNotes || '');
+      setSavedStyleNotes(data.styleNotes || '');
       setTemplates(data.templates || []);
       setError(null);
     } catch (err) {
@@ -72,6 +82,22 @@ const Settings = () => {
     }
   };
 
+  const saveStyle = async () => {
+    setSavingStyle(true);
+    setError(null);
+    setStyleSaved(false);
+    try {
+      const data = await settingsAPI.update({ replyStyle, styleNotes });
+      setSavedReplyStyle(data.replyStyle || 'professional');
+      setSavedStyleNotes(data.styleNotes || '');
+      setStyleSaved(true);
+    } catch (err) {
+      setError(err.response?.data?.error || err.message);
+    } finally {
+      setSavingStyle(false);
+    }
+  };
+
   const persistTemplates = async (next) => {
     setError(null);
     try {
@@ -100,6 +126,7 @@ const Settings = () => {
 
   const sigDirty = signature !== savedSignature;
   const houseDirty = houseInfo !== savedHouseInfo;
+  const styleDirty = replyStyle !== savedReplyStyle || styleNotes !== savedStyleNotes;
 
   return (
     <div className="page">
@@ -135,6 +162,41 @@ const Settings = () => {
                 <IconCheck size={15} /> {savingSig ? 'Speichern…' : 'Signatur speichern'}
               </button>
               {sigSaved && !sigDirty && <span className="set-saved" role="status">Gespeichert ✓</span>}
+            </div>
+          </div>
+
+          {/* Antwort-Stil */}
+          <div className="card set-card">
+            <div className="card-title">Antwort-Stil</div>
+            <p className="set-hint">
+              Wie sollen die <strong>KI-Antwortvorschläge</strong> klingen? Anrede und Ton wählen, optional zusätzliche Wünsche ergänzen.
+            </p>
+            <label className="tpl-add-label" htmlFor="reply-style">Anrede &amp; Ton</label>
+            <select
+              id="reply-style"
+              className="field-input"
+              value={replyStyle}
+              onChange={(e) => { setReplyStyle(e.target.value); setStyleSaved(false); }}
+            >
+              <option value="formal">Sehr formell – „Sehr geehrte/r …“</option>
+              <option value="professional">Professionell &amp; freundlich – „Guten Tag …“ (Standard)</option>
+              <option value="casual">Locker &amp; herzlich – „Hallo …“</option>
+            </select>
+            <label className="tpl-add-label" htmlFor="style-notes" style={{ marginTop: '14px' }}>Weitere Stil-Wünsche (optional)</label>
+            <textarea
+              id="style-notes"
+              className="note-input set-textarea"
+              value={styleNotes}
+              onChange={(e) => { setStyleNotes(e.target.value); setStyleSaved(false); }}
+              rows="2"
+              aria-label="Weitere Stil-Wünsche"
+              placeholder="z. B. Kurz halten. Grußformel „Mit freundlichen Grüßen“. Keine Emojis."
+            />
+            <div className="set-actions">
+              <button className="btn-primary" onClick={saveStyle} disabled={savingStyle || !styleDirty}>
+                <IconCheck size={15} /> {savingStyle ? 'Speichern…' : 'Antwort-Stil speichern'}
+              </button>
+              {styleSaved && !styleDirty && <span className="set-saved" role="status">Gespeichert ✓</span>}
             </div>
           </div>
 

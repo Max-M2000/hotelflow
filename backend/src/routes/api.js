@@ -88,6 +88,8 @@ router.post('/tickets/:id/suggest-reply', async (req, res) => {
       category: ticket.category,
       sentiment: ticket.sentiment,
       houseInfo: settings.houseInfo,
+      replyStyle: settings.replyStyle,
+      styleNotes: settings.styleNotes,
     });
     if (!draft) {
       return res.status(502).json({ error: 'Entwurf konnte nicht erstellt werden.' });
@@ -292,10 +294,18 @@ router.get('/settings', async (req, res) => {
 // PATCH /api/settings - update signature and/or templates
 router.patch('/settings', async (req, res) => {
   try {
-    const { signature, templates, houseInfo } = req.body;
+    const { signature, templates, houseInfo, replyStyle, styleNotes } = req.body;
     const update = {};
     if (signature !== undefined) update.signature = signature;
     if (houseInfo !== undefined) update.houseInfo = String(houseInfo);
+    if (replyStyle !== undefined) {
+      const allowed = ['formal', 'professional', 'casual'];
+      if (!allowed.includes(replyStyle)) {
+        return res.status(400).json({ error: 'invalid replyStyle' });
+      }
+      update.replyStyle = replyStyle;
+    }
+    if (styleNotes !== undefined) update.styleNotes = String(styleNotes);
     if (templates !== undefined) {
       if (!Array.isArray(templates)) {
         return res.status(400).json({ error: 'templates must be an array' });

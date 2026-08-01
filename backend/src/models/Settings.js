@@ -18,6 +18,17 @@ const settingsSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    // Tonalität der KI-Antwortvorschläge (pro Hotel wählbar).
+    replyStyle: {
+      type: String,
+      enum: ['formal', 'professional', 'casual'],
+      default: 'professional',
+    },
+    // Freie Zusatz-Wünsche zum Stil (z. B. Länge, Grußformel, "keine Emojis").
+    styleNotes: {
+      type: String,
+      default: '',
+    },
     templates: [
       {
         label: { type: String, required: true },

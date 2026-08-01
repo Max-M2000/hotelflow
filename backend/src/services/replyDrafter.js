@@ -14,18 +14,38 @@ const getOpenAIClient = () => {
   return openai;
 };
 
+// Per-hotel tone presets: control salutation, formality and closing.
+const STYLE_INSTRUCTIONS = {
+  formal:
+    'Anrede förmlich: "Sehr geehrter Herr [Nachname]" bzw. "Sehr geehrte Frau [Nachname]". Ist der Name oder das Geschlecht unklar, schreibe "Sehr geehrte Damen und Herren". Ton: sachlich und höflich-distanziert, durchgängig Sie. Grußformel: "Mit freundlichen Grüßen".',
+  professional:
+    'Anrede freundlich-professionell: "Guten Tag Herr/Frau [Nachname]". Ist der Name unklar, schreibe nur "Guten Tag". Ton: warm und professionell, Sie. Grußformel: "Mit freundlichen Grüßen".',
+  casual:
+    'Anrede locker und herzlich: "Hallo [Vorname]". Ist der Name unklar, schreibe nur "Hallo". Ton: herzlich und persönlich, aber respektvoll, Sie. Grußformel: "Herzliche Grüße".',
+};
+
 /**
  * Generate a suggested German reply to a guest email.
  *
  * The draft is a STARTING POINT that a human reviews, edits and sends —
  * it is never sent automatically. The prompt is deliberately strict about
- * not inventing facts (prices, times, availability): where a concrete detail
- * is needed it must leave a clearly marked [placeholder] for staff to fill.
+ * not inventing facts (prices, times, availability, services): where a concrete
+ * detail is unknown it must leave a clearly marked [placeholder] for staff.
  *
- * @param {Object} ticket - { guestName, subject, body, category, sentiment, houseInfo }
+ * @param {Object} opts - { guestName, subject, body, category, sentiment,
+ *                          houseInfo, replyStyle, styleNotes }
  * @returns {String} the suggested reply text (no signature)
  */
-const draftReply = async ({ guestName, subject, body, category, sentiment, houseInfo }) => {
+const draftReply = async ({
+  guestName,
+  subject,
+  body,
+  category,
+  sentiment,
+  houseInfo,
+  replyStyle,
+  styleNotes,
+}) => {
   const client = getOpenAIClient();
 
   const facts = (houseInfo || '').trim();
@@ -33,7 +53,13 @@ const draftReply = async ({ guestName, subject, body, category, sentiment, house
     ? `\nBestätigte Hotel-Infos (nutze diese, wo sie zur Frage passen, und formuliere sie natürlich aus):\n"""\n${facts}\n"""\n`
     : '';
 
-  const prompt = `Du bist Mitarbeiter:in an der Rezeption eines Hotels und schreibst eine freundliche, professionelle Antwort auf die E-Mail eines Gastes. Schreibe auf Deutsch, in der Sie-Form.
+  const style = STYLE_INSTRUCTIONS[replyStyle] || STYLE_INSTRUCTIONS.professional;
+  const notes = (styleNotes || '').trim();
+  const notesBlock = notes
+    ? `\nZusätzliche Stil-Wünsche des Hotels (unbedingt beachten): ${notes}\n`
+    : '';
+
+  const prompt = `Du bist Mitarbeiter:in an der Rezeption eines Hotels und schreibst eine Antwort auf die E-Mail eines Gastes. Schreibe auf Deutsch.
 
 E-Mail des Gastes:
 Name: ${guestName || 'unbekannt'}
@@ -42,15 +68,16 @@ Nachricht: ${body || ''}
 
 Einordnung (nur Hilfestellung): Kategorie ${category || 'unbekannt'}, Stimmung ${sentiment || 'neutral'}.
 ${factsBlock}
+Stil des Hotels (halte dich genau daran): ${style}${notesBlock}
 Regeln:
-- Begrüße den Gast passend (z. B. "Guten Tag Herr/Frau [Nachname]"). Ist der Name unklar, schreibe nur "Guten Tag".
+- Halte dich an den vorgegebenen Stil (Anrede, Ton, Grußformel).
 - Gehe konkret und hilfsbereit auf das Anliegen ein. Bei einer Beschwerde: Verständnis zeigen und einen nächsten Schritt oder eine Lösung anbieten.
 - Wenn die Antwort in den bestätigten Hotel-Infos steht, nutze diese echten Angaben (z. B. die konkrete Check-in-Zeit).
 - SEHR WICHTIG – nichts erfinden: Bestätige NIEMALS, dass das Hotel eine Leistung, Ausstattung oder Regelung anbietet oder hat, wenn das nicht ausdrücklich in den bestätigten Hotel-Infos oder in der Gästenachricht steht. Antworte NIE mit "Ja, wir bieten X an", wenn X dort nicht steht.
 - Fragt der Gast nach etwas, das nicht hinterlegt ist (z. B. Flughafen-Transfer, Pool, Late Check-out, ein bestimmter Preis oder eine Uhrzeit), dann behaupte weder Ja noch Nein. Formuliere offen und setze einen Platzhalter, den ein Mensch ausfüllt, z. B.: "Zu einem Flughafen-Transfer gebe ich Ihnen gern gesondert Bescheid: [Bieten wir einen Transfer an, und zu welchem Preis?]".
 - Erfinde generell keine Fakten (Preise, Verfügbarkeiten, Uhrzeiten, Zimmernummern, Ausstattung, Hausregeln). Im Zweifel lieber einen Platzhalter setzen als etwas annehmen.
-- Halte die Antwort kurz und warm (etwa 3 bis 6 Sätze).
-- Schließe mit "Mit freundlichen Grüßen" in einer eigenen Zeile. Füge KEINEN Namen und KEINE Signatur an – das ergänzt der Mitarbeiter selbst.
+- Halte die Antwort kurz (etwa 3 bis 6 Sätze).
+- Schließe mit der zum Stil passenden Grußformel in einer eigenen Zeile. Füge KEINEN Namen und KEINE Signatur an – das ergänzt der Mitarbeiter selbst.
 - Gib NUR den Antworttext aus: keine Vorbemerkung, kein Betreff, keine Anführungszeichen.`;
 
   const response = await client.chat.completions.create({
