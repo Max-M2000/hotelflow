@@ -87,6 +87,12 @@ export const ticketAPI = {
     const response = await api.post(`/tickets/${id}/reply`, { subject, body, author });
     return response.data;
   },
+
+  // Get an AI-suggested reply draft (not sent — a human reviews and sends it)
+  suggestReply: async (id) => {
+    const response = await api.post(`/tickets/${id}/suggest-reply`);
+    return response.data; // { draft }
+  },
 };
 
 export const routingRuleAPI = {

@@ -5,6 +5,7 @@ const RoutingRule = require('../models/RoutingRule');
 const { processIncomingEmail } = require('../services/emailIngestService');
 const { normalizeInboundEmail } = require('../services/inboundParser');
 const { sendReply } = require('../services/mailer');
+const { draftReply } = require('../services/replyDrafter');
 const Settings = require('../models/Settings');
 const { requireAuth, requireWebhookSecret } = require('../middleware/auth');
 
@@ -67,6 +68,33 @@ router.get('/setup/info', async (req, res) => {
       totalTickets,
     });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/tickets/:id/suggest-reply - KI-Antwort-Entwurf (wird NICHT gesendet,
+// nur als Vorschlag zurückgegeben; ein Mensch prüft, passt an und sendet).
+router.post('/tickets/:id/suggest-reply', async (req, res) => {
+  try {
+    const ticket = await Ticket.findById(req.params.id);
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+    const settings = await Settings.getSingleton();
+    const draft = await draftReply({
+      guestName: ticket.guestName,
+      subject: ticket.subject,
+      body: ticket.body,
+      category: ticket.category,
+      sentiment: ticket.sentiment,
+      houseInfo: settings.houseInfo,
+    });
+    if (!draft) {
+      return res.status(502).json({ error: 'Entwurf konnte nicht erstellt werden.' });
+    }
+    res.json({ draft });
+  } catch (error) {
+    console.error('[SuggestReply] Error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -264,9 +292,10 @@ router.get('/settings', async (req, res) => {
 // PATCH /api/settings - update signature and/or templates
 router.patch('/settings', async (req, res) => {
   try {
-    const { signature, templates } = req.body;
+    const { signature, templates, houseInfo } = req.body;
     const update = {};
     if (signature !== undefined) update.signature = signature;
+    if (houseInfo !== undefined) update.houseInfo = String(houseInfo);
     if (templates !== undefined) {
       if (!Array.isArray(templates)) {
         return res.status(400).json({ error: 'templates must be an array' });
