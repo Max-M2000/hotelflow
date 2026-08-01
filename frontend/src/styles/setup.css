@@ -1,0 +1,136 @@
+/* ===== Einrichtung / E-Mail-Weiterleitung ===== */
+
+.setup-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+  max-width: 780px;
+}
+
+/* Status banner */
+.setup-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  padding: var(--space-16) var(--space-20);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+.setup-status-ok {
+  border-color: rgba(76, 175, 80, 0.38);
+  background: rgba(76, 175, 80, 0.10);
+}
+.setup-status-wait {
+  border-color: rgba(255, 152, 0, 0.38);
+  background: rgba(255, 152, 0, 0.10);
+}
+.setup-status-icon {
+  flex: 0 0 auto;
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: #fff;
+}
+.setup-status-ok .setup-status-icon { background: var(--color-status-closed); }
+.setup-status-wait .setup-status-icon { background: var(--color-status-in-progress); }
+.setup-status-text { flex: 1 1 auto; min-width: 0; }
+.setup-status-title { font-weight: var(--font-weight-semibold); font-size: var(--font-size-lg); color: var(--color-text); }
+.setup-status-sub { font-size: var(--font-size-base); color: var(--color-text-secondary); margin-top: 2px; }
+.setup-refresh {
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: var(--font-size-base);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease;
+}
+.setup-refresh:hover { border-color: var(--color-focus); color: var(--color-focus); }
+
+/* Cards reuse the app .card look; small extras */
+.setup-card { }
+
+/* Forwarding address box */
+.setup-address {
+  display: flex; align-items: center; gap: var(--space-12);
+  margin-top: var(--space-12);
+  padding: var(--space-12) var(--space-16);
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+}
+.setup-address-value {
+  flex: 1 1 auto;
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  word-break: break-all;
+}
+.setup-copy {
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.setup-address-empty { color: var(--color-text-secondary); font-size: var(--font-size-base); }
+
+/* Provider tabs */
+.setup-tabs {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin: var(--space-16) 0 var(--space-20);
+}
+.setup-tab {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.setup-tab:hover { border-color: var(--color-focus); color: var(--color-focus); }
+.setup-tab-active,
+.setup-tab-active:hover {
+  background: var(--color-focus);
+  border-color: var(--color-focus);
+  color: #fff;
+}
+
+/* Steps */
+.setup-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-12); }
+.setup-step { display: flex; gap: var(--space-12); align-items: flex-start; }
+.setup-step-num {
+  flex: 0 0 auto;
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--color-focus);
+  color: #fff;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+.setup-step-text { color: var(--color-text); font-size: var(--font-size-base); line-height: 1.5; padding-top: 3px; }
+
+/* Test hint */
+.setup-testhint {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: var(--space-16);
+  border-radius: var(--radius-md);
+  background: rgba(59, 130, 246, 0.10);
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+.setup-testhint svg { flex: 0 0 auto; margin-top: 2px; color: var(--color-focus); }
+.setup-testhint strong { color: var(--color-text); }
+
+@media (max-width: 560px) {
+  .setup-status { flex-wrap: wrap; }
+  .setup-refresh { width: 100%; justify-content: center; }
+}

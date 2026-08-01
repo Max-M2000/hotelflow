@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { IconLogo, IconInbox, IconChart, IconSettings, IconLogout, IconUsers, IconShield } from './Icons';
+import { IconLogo, IconInbox, IconChart, IconSettings, IconLogout, IconUsers, IconShield, IconSend } from './Icons';
 import '../styles/layout.css';
 
 const Layout = ({ children, onLogout }) => {
@@ -15,6 +15,7 @@ const Layout = ({ children, onLogout }) => {
   const isRouting = location.pathname.startsWith('/routing');
   const isReports = location.pathname.startsWith('/reports');
   const isSettings = location.pathname.startsWith('/settings');
+  const isEinrichtung = location.pathname.startsWith('/einrichtung');
   const isUsers = location.pathname.startsWith('/users');
 
   const handleLogout = () => {
@@ -60,6 +61,14 @@ const Layout = ({ children, onLogout }) => {
           >
             <IconChart size={18} />
             <span>Berichte</span>
+          </button>
+          <button
+            className={`nav-item ${isEinrichtung ? 'nav-item-active' : ''}`}
+            onClick={() => navigate('/einrichtung')}
+            aria-current={isEinrichtung ? 'page' : undefined}
+          >
+            <IconSend size={18} />
+            <span>Einrichtung</span>
           </button>
           <button
             className={`nav-item ${isSettings ? 'nav-item-active' : ''}`}

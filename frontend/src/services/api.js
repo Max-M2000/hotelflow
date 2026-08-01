@@ -160,3 +160,11 @@ export const settingsAPI = {
     return response.data;
   },
 };
+
+export const setupAPI = {
+  // Forwarding address + inbound connection status (for the Einrichtung guide)
+  info: async () => {
+    const response = await api.get('/setup/info');
+    return response.data;
+  },
+};

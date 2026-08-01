@@ -54,6 +54,23 @@ router.post('/inbound/email', requireWebhookSecret, async (req, res) => {
 // is the only public endpoint (guarded by its own shared secret).
 router.use(requireAuth);
 
+// GET /api/setup/info - Forwarding address + inbound connection status.
+// Powers the in-app "Einrichtung" guide: shows the hotel which address to
+// forward to and whether emails are already arriving.
+router.get('/setup/info', async (req, res) => {
+  try {
+    const last = await Ticket.findOne().sort({ createdAt: -1 }).select('createdAt');
+    const totalTickets = await Ticket.countDocuments();
+    res.json({
+      forwardingAddress: process.env.INBOUND_FORWARD_ADDRESS || null,
+      lastEmailAt: last ? last.createdAt : null,
+      totalTickets,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST /api/ingest-email - Full pipeline: Email → Categorize → Route → Create Ticket
 router.post('/ingest-email', async (req, res) => {
   try {
