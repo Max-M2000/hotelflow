@@ -299,6 +299,21 @@
 }
 
 /* Responsive */
+.auth-legal {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+}
+.auth-legal a {
+  color: var(--text);
+  opacity: 0.6;
+  text-decoration: none;
+}
+.auth-legal a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
 @media (max-width: 860px) {
   .auth {
     grid-template-columns: 1fr;

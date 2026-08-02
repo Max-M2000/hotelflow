@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
+import PrivacyPage from './pages/PrivacyPage';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import TicketDetail from './components/TicketDetail';
@@ -55,6 +56,7 @@ function App() {
           path="/login"
           element={isAuthenticated ? <Navigate to="/" /> : <LoginPage onLogin={handleLogin} />}
         />
+        <Route path="/datenschutz" element={<PrivacyPage />} />
         <Route path="/" element={requireAuth(<Dashboard />)} />
         <Route path="/ticket/:id" element={requireAuth(<TicketDetail />)} />
         <Route path="/routing" element={requireAuth(<Routing />)} />

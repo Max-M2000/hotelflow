@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { IconLogo } from '../components/Icons';
 import { authAPI } from '../services/api';
 import '../styles/auth.css';
@@ -125,6 +125,10 @@ const LoginPage = ({ onLogin }) => {
               {loading ? 'Anmelden…' : 'Anmelden'}
             </button>
           </form>
+
+          <p className="auth-legal">
+            <Link to="/datenschutz">Datenschutz &amp; KI</Link>
+          </p>
         </div>
       </div>
     </div>

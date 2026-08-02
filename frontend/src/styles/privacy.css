@@ -1,0 +1,62 @@
+/* Öffentliche Datenschutz- & KI-Seite (/datenschutz) */
+.privacy-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  padding: 48px 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.privacy-container {
+  width: 100%;
+  max-width: 720px;
+}
+
+.privacy-back {
+  display: inline-block;
+  margin-bottom: 24px;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+.privacy-back:hover { text-decoration: underline; }
+
+.privacy-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin-bottom: 18px;
+}
+
+.privacy-page h1 {
+  font-size: 1.7rem;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+
+.privacy-page h2 {
+  font-size: 1.1rem;
+  margin: 30px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.privacy-page p,
+.privacy-page li {
+  line-height: 1.6;
+  font-size: 0.96rem;
+}
+
+.privacy-page ul {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+.privacy-page li { margin-bottom: 8px; }
+
+.privacy-page a { color: var(--accent); }
+
+.privacy-muted { opacity: 0.65; font-size: 0.88rem; }
+.privacy-footnote { margin-top: 32px; }
