@@ -22,9 +22,14 @@ const processIncomingEmail = async (emailData) => {
 
   console.log(`[Ingest] Processing email: ${emailId} from ${from} (hotel ${hotelId})`);
 
-  // Step 1: Categorize email using OpenAI
+  // Step 1: Categorize email using OpenAI (also extracts the guest's real name
+  // from the message text / signature).
   console.log(`[Ingest] Categorizing email...`);
-  const { category, priority, sentiment } = await categorizeEmail(subject, body);
+  const { category, priority, sentiment, guestName: aiName } = await categorizeEmail(
+    subject,
+    body,
+    { fromName: providedName, fromEmail: from }
+  );
   console.log(`[Ingest] Categorized as: ${category} / ${priority} / ${sentiment}`);
 
   // Step 2: Route ticket to appropriate team (scoped to this hotel's rules)
@@ -32,9 +37,13 @@ const processIncomingEmail = async (emailData) => {
   const assignedTo = await routeTicket(category, priority, sentiment, hotelId);
   console.log(`[Ingest] Assigned to: ${assignedTo}`);
 
-  // Step 3: Guest name — prefer the display name from the email header,
-  // fall back to deriving it from the address.
-  const guestName = (providedName && providedName.trim()) || extractGuestName(from);
+  // Step 3: Guest name — prefer the real name the AI read from the message
+  // (signature/greeting), then the email header display name, and only as a
+  // last resort derive something from the address.
+  const guestName =
+    (aiName && aiName.trim()) ||
+    (providedName && providedName.trim()) ||
+    extractGuestName(from);
   console.log(`[Ingest] Guest: ${guestName}`);
 
   // Step 4: Create ticket in database
