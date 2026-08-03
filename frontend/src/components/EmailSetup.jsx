@@ -116,6 +116,11 @@ const EmailSetup = () => {
           Leiten Sie Ihren Gäste-Posteingang an Ospitara weiter. Wenige Minuten, kein Passwort nötig,
           und an Ihrer gewohnten Adresse ändert sich nichts.
         </p>
+        {info?.hotelName && (
+          <p className="settings-subtitle" style={{ marginTop: 4, opacity: 0.75 }}>
+            Workspace: <strong>{info.hotelName}</strong>
+          </p>
+        )}
       </div>
 
       {error && <div className="banner-error" role="alert">{error}</div>}

@@ -1,11 +1,17 @@
 const mongoose = require('mongoose');
 
-// Singleton settings for the hotel (single-tenant for now; add hotelId later
-// for multi-tenancy). Holds the reply signature and reusable reply templates
-// that staff can insert when answering guests.
+// Per-hotel settings (one document per tenant). Holds the reply signature and
+// reusable reply templates that staff can insert when answering guests.
 const settingsSchema = new mongoose.Schema(
   {
-    key: { type: String, default: 'default', unique: true }, // singleton marker
+    // Tenant these settings belong to. One settings doc per hotel.
+    hotelId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Hotel',
+      required: true,
+      unique: true,
+      index: true,
+    },
     signature: {
       type: String,
       default:
@@ -48,11 +54,12 @@ settingsSchema.statics.DEFAULT_TEMPLATES = [
   { label: 'WLAN', body: 'In allen Zimmern und öffentlichen Bereichen steht Ihnen kostenfreies WLAN zur Verfügung.\n\n' },
 ];
 
-// Find the singleton, creating it (with defaults) on first access.
-settingsSchema.statics.getSingleton = async function () {
-  let doc = await this.findOne({ key: 'default' });
+// Find a hotel's settings, creating them (with default templates) on first access.
+settingsSchema.statics.getForHotel = async function (hotelId) {
+  if (!hotelId) throw new Error('getForHotel requires a hotelId');
+  let doc = await this.findOne({ hotelId });
   if (!doc) {
-    doc = await this.create({ key: 'default', templates: this.DEFAULT_TEMPLATES });
+    doc = await this.create({ hotelId, templates: this.DEFAULT_TEMPLATES });
   }
   return doc;
 };

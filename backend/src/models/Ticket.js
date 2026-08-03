@@ -2,7 +2,14 @@ const mongoose = require('mongoose');
 
 const ticketSchema = new mongoose.Schema(
   {
-    emailId: { type: String, required: true, unique: true },
+    // Tenant this ticket belongs to. Every query MUST be scoped by hotelId.
+    hotelId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Hotel',
+      required: true,
+      index: true,
+    },
+    emailId: { type: String, required: true },
     guestEmail: { type: String, required: true },
     guestName: { type: String, required: true },
     subject: { type: String, required: true },
@@ -50,6 +57,10 @@ const ticketSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Deduplicate inbound emails per tenant: the same emailId may in theory appear
+// for two different hotels, but never twice within one hotel.
+ticketSchema.index({ hotelId: 1, emailId: 1 }, { unique: true });
 
 const Ticket = mongoose.model('Ticket', ticketSchema);
 

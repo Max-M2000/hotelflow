@@ -23,7 +23,14 @@ function getSecret() {
  */
 function signToken(user) {
   return jwt.sign(
-    { sub: String(user._id), email: user.email, role: user.role },
+    {
+      sub: String(user._id),
+      email: user.email,
+      role: user.role,
+      // Tenant binding: every scoped request derives its hotel from the token,
+      // never from client input. A token without hotelId cannot access data.
+      hotelId: user.hotelId ? String(user.hotelId) : undefined,
+    },
     getSecret(),
     { expiresIn: TOKEN_TTL }
   );

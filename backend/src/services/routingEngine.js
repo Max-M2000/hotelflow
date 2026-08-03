@@ -12,10 +12,11 @@ const RoutingRule = require('../models/RoutingRule');
 const specificity = (rule) =>
   (rule.priority ? 1 : 0) + (rule.sentiment ? 1 : 0);
 
-const routeTicket = async (category, priority, sentiment) => {
+const routeTicket = async (category, priority, sentiment, hotelId) => {
   try {
-    // Load all active rules
-    const rules = await RoutingRule.find({ active: true });
+    if (!hotelId) throw new Error('routeTicket requires a hotelId');
+    // Load all active rules for THIS hotel only.
+    const rules = await RoutingRule.find({ hotelId, active: true });
 
     // Collect every rule that matches (category is required; priority/sentiment
     // filters only need to match when they are set on the rule).

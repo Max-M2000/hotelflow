@@ -14,10 +14,25 @@ function requireAuth(req, res, next) {
 
   try {
     req.user = verifyToken(token);
+    // Expose the tenant on the request. Every scoped query reads req.hotelId,
+    // which comes from the signed token — never from client-supplied input.
+    req.hotelId = req.user.hotelId || null;
     return next();
   } catch (err) {
     return res.status(401).json({ error: 'Sitzung ungültig oder abgelaufen.' });
   }
+}
+
+/**
+ * Gate that ensures the authenticated request is bound to a tenant. Must run
+ * AFTER requireAuth. Rejects legacy/tokens without a hotelId so no query can
+ * ever run unscoped. This is the backstop for tenant isolation.
+ */
+function requireHotel(req, res, next) {
+  if (!req.hotelId) {
+    return res.status(403).json({ error: 'Kein Hotel-Kontext. Bitte neu anmelden.' });
+  }
+  return next();
 }
 
 /**
@@ -60,4 +75,4 @@ function requireWebhookSecret(req, res, next) {
   return next();
 }
 
-module.exports = { requireAuth, requireAdmin, requireWebhookSecret };
+module.exports = { requireAuth, requireAdmin, requireHotel, requireWebhookSecret };
