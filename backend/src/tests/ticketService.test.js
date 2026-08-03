@@ -17,8 +17,11 @@ describe('Ticket Model', () => {
     await Ticket.deleteMany({});
   });
 
+  const HOTEL = new mongoose.Types.ObjectId(); // dummy tenant id
+
   test('should create a ticket with required fields', async () => {
     const ticketData = {
+      hotelId: HOTEL,
       emailId: 'email-123',
       guestEmail: 'guest@example.com',
       guestName: 'John Doe',
@@ -29,6 +32,7 @@ describe('Ticket Model', () => {
     const ticket = await Ticket.create(ticketData);
 
     expect(ticket._id).toBeDefined();
+    expect(ticket.hotelId).toEqual(HOTEL);
     expect(ticket.emailId).toBe('email-123');
     expect(ticket.status).toBe('open');
     expect(ticket.category).toBe('inquiry');
@@ -38,9 +42,21 @@ describe('Ticket Model', () => {
   test('should fail without required fields', async () => {
     const incompleteData = {
       guestEmail: 'guest@example.com',
-      // Missing emailId, guestName, subject, body
+      // Missing hotelId, emailId, guestName, subject, body
     };
 
     await expect(Ticket.create(incompleteData)).rejects.toThrow();
+  });
+
+  test('should fail without a hotelId (tenant isolation)', async () => {
+    const noHotel = {
+      emailId: 'email-456',
+      guestEmail: 'guest@example.com',
+      guestName: 'Jane Doe',
+      subject: 'Question',
+      body: 'A question',
+    };
+
+    await expect(Ticket.create(noHotel)).rejects.toThrow();
   });
 });

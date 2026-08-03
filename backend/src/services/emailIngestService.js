@@ -16,18 +16,20 @@ const { extractGuestName } = require('./emailParser');
  * @returns {Object} Created ticket with all enriched data
  */
 const processIncomingEmail = async (emailData) => {
-  const { emailId, from, subject, body, guestName: providedName } = emailData;
+  const { emailId, from, subject, body, guestName: providedName, hotelId } = emailData;
 
-  console.log(`[Ingest] Processing email: ${emailId} from ${from}`);
+  if (!hotelId) throw new Error('processIncomingEmail requires a hotelId');
+
+  console.log(`[Ingest] Processing email: ${emailId} from ${from} (hotel ${hotelId})`);
 
   // Step 1: Categorize email using OpenAI
   console.log(`[Ingest] Categorizing email...`);
   const { category, priority, sentiment } = await categorizeEmail(subject, body);
   console.log(`[Ingest] Categorized as: ${category} / ${priority} / ${sentiment}`);
 
-  // Step 2: Route ticket to appropriate team
+  // Step 2: Route ticket to appropriate team (scoped to this hotel's rules)
   console.log(`[Ingest] Routing to team...`);
-  const assignedTo = await routeTicket(category, priority, sentiment);
+  const assignedTo = await routeTicket(category, priority, sentiment, hotelId);
   console.log(`[Ingest] Assigned to: ${assignedTo}`);
 
   // Step 3: Guest name — prefer the display name from the email header,
@@ -38,6 +40,7 @@ const processIncomingEmail = async (emailData) => {
   // Step 4: Create ticket in database
   console.log(`[Ingest] Creating ticket in database...`);
   const ticket = await Ticket.create({
+    hotelId,
     emailId,
     guestEmail: from,
     guestName,

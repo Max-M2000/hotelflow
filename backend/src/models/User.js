@@ -5,6 +5,13 @@ const SALT_ROUNDS = 12;
 
 const userSchema = new mongoose.Schema(
   {
+    // Tenant this user belongs to. Every user is scoped to exactly one hotel.
+    hotelId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Hotel',
+      required: true,
+      index: true,
+    },
     email: {
       type: String,
       required: true,

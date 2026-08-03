@@ -10,6 +10,8 @@ jest.mock('../services/categorizer');
 jest.mock('../services/routingEngine');
 jest.mock('../services/emailParser');
 
+const HOTEL = '507f1f77bcf86cd799439099'; // dummy tenant id
+
 describe('Email Ingest Service - Full Pipeline', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -46,6 +48,7 @@ describe('Email Ingest Service - Full Pipeline', () => {
 
     // Test the full pipeline
     const result = await processIncomingEmail({
+      hotelId: HOTEL,
       emailId: 'test-001',
       from: 'john@example.com',
       subject: 'Room is too cold',
@@ -54,7 +57,7 @@ describe('Email Ingest Service - Full Pipeline', () => {
 
     // Verify all steps were called
     expect(categorizeEmail).toHaveBeenCalledWith('Room is too cold', 'AC broken, please fix ASAP');
-    expect(routeTicket).toHaveBeenCalledWith('complaint', 'high', 'negative');
+    expect(routeTicket).toHaveBeenCalledWith('complaint', 'high', 'negative', HOTEL);
     expect(extractGuestName).toHaveBeenCalledWith('john@example.com');
     expect(Ticket.create).toHaveBeenCalled();
 
@@ -92,6 +95,7 @@ describe('Email Ingest Service - Full Pipeline', () => {
     Ticket.create.mockResolvedValue(mockTicket);
 
     const result = await processIncomingEmail({
+      hotelId: HOTEL,
       emailId: 'test-002',
       from: 'jane@example.com',
       subject: 'Book deluxe room',
@@ -131,6 +135,7 @@ describe('Email Ingest Service - Full Pipeline', () => {
     Ticket.create.mockResolvedValue(mockTicket);
 
     const result = await processIncomingEmail({
+      hotelId: HOTEL,
       emailId: 'test-003',
       from: 'bob@example.com',
       subject: 'WiFi password?',
@@ -147,6 +152,7 @@ describe('Email Ingest Service - Full Pipeline', () => {
 
     await expect(
       processIncomingEmail({
+        hotelId: HOTEL,
         emailId: 'test-004',
         from: 'test@example.com',
         subject: 'Test',
@@ -184,6 +190,7 @@ describe('Email Ingest Service - Full Pipeline', () => {
     });
 
     await processIncomingEmail({
+      hotelId: HOTEL,
       emailId: 'email-123',
       from: 'test@example.com',
       subject: 'Test subject',
@@ -192,6 +199,8 @@ describe('Email Ingest Service - Full Pipeline', () => {
 
     // Verify Ticket.create was called with proper data
     const createCall = Ticket.create.mock.calls[0][0];
+    // Tenant isolation: the created ticket must carry the hotelId.
+    expect(createCall).toHaveProperty('hotelId', HOTEL);
     expect(createCall).toHaveProperty('emailId');
     expect(createCall).toHaveProperty('guestEmail');
     expect(createCall).toHaveProperty('guestName');

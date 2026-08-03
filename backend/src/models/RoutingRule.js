@@ -2,6 +2,13 @@ const mongoose = require('mongoose');
 
 const routingRuleSchema = new mongoose.Schema(
   {
+    // Tenant this rule belongs to. Every query MUST be scoped by hotelId.
+    hotelId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Hotel',
+      required: true,
+      index: true,
+    },
     // Match criteria
     category: { type: String, required: true }, // inquiry, complaint, booking, other
     priority: { type: String, enum: ['low', 'medium', 'high'] }, // optional filter

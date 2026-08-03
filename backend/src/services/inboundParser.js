@@ -41,7 +41,7 @@ const stripHtml = (s) =>
     .replace(/\n\s*\n\s*\n+/g, '\n\n')
     .trim();
 
-const build = ({ from, fromName, subject, text, emailId }) => {
+const build = ({ from, fromName, to, subject, text, emailId }) => {
   const parsed = parseAddress(from || '');
   const address = parsed.address;
   let cleanText = (text || '').toString().trim();
@@ -56,6 +56,9 @@ const build = ({ from, fromName, subject, text, emailId }) => {
   return {
     from: address,
     fromName: (fromName || parsed.name || '').trim(),
+    // Recipient/Ospitara address the mail was delivered to. Used to map the
+    // email to the right hotel (tenant). May be empty if the provider omits it.
+    to: parseAddress(to || '').address,
     subject: cleanSubject,
     text: cleanText,
     emailId: (emailId && String(emailId).trim()) || makeEmailId(address, cleanSubject, cleanText),
@@ -81,6 +84,7 @@ const normalizeInboundEmail = async (payload) => {
       const built = build({
         from: p.from?.value?.[0]?.address,
         fromName: p.from?.value?.[0]?.name,
+        to: payload.envelope?.to || p.to?.value?.[0]?.address,
         subject: p.subject,
         text: p.text || p.html,
         emailId: p.messageId,
@@ -96,6 +100,7 @@ const normalizeInboundEmail = async (payload) => {
     return build({
       from: payload.FromFull?.Email || payload.From,
       fromName: payload.FromFull?.Name,
+      to: payload.OriginalRecipient || payload.ToFull?.[0]?.Email || payload.To,
       subject: payload.Subject,
       text: payload.StrippedTextReply || payload.TextBody || payload.HtmlBody,
       emailId: payload.MessageID,
@@ -106,6 +111,7 @@ const normalizeInboundEmail = async (payload) => {
   if (payload.sender || payload['body-plain'] || payload['Message-Id']) {
     return build({
       from: payload.sender || payload.from,
+      to: payload.recipient || payload.To,
       subject: payload.subject,
       text: payload['stripped-text'] || payload['body-plain'],
       emailId: payload['Message-Id'] || payload['message-id'],
@@ -117,6 +123,7 @@ const normalizeInboundEmail = async (payload) => {
     const h = payload.headers || {};
     const cm = build({
       from: h.From || h.from || payload.envelope?.from,
+      to: payload.envelope?.to || h.To || h.to,
       subject: h.Subject || h.subject,
       text: payload.plain || payload.reply_plain || payload.html,
       emailId: h['Message-ID'] || h['Message-Id'] || h['message-id'],
@@ -128,6 +135,7 @@ const normalizeInboundEmail = async (payload) => {
   return build({
     from: payload.from,
     fromName: payload.fromName,
+    to: payload.to || payload.recipient || payload.envelope?.to,
     subject: payload.subject,
     text: payload.text || payload.body || payload.html,
     emailId: payload.emailId || payload.messageId || payload['Message-Id'],
