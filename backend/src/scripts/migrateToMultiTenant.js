@@ -51,17 +51,37 @@ async function run() {
   const r = await RoutingRule.updateMany({ hotelId: { $exists: false } }, { $set: { hotelId } });
 
   // Settings: the old global singleton used { key: 'default' } and had no
-  // hotelId. Attach it to the hotel and drop the obsolete key marker.
+  // hotelId. Attach it to the hotel. NOTE: the obsolete `key` field must be
+  // removed via the native driver — a Mongoose $unset is silently dropped
+  // because `key` is no longer in the schema (strict mode).
   const s = await Settings.updateMany(
     { hotelId: { $exists: false } },
-    { $set: { hotelId }, $unset: { key: '' } }
+    { $set: { hotelId } }
   );
+  await mongoose.connection.db
+    .collection('settings')
+    .updateMany({ key: { $exists: true } }, { $unset: { key: '' } });
 
   console.log('✓ Backfill complete:');
   console.log(`  users:         ${u.modifiedCount}`);
   console.log(`  tickets:       ${t.modifiedCount}`);
   console.log(`  routing rules: ${r.modifiedCount}`);
   console.log(`  settings:      ${s.modifiedCount}`);
+
+  // Drop stale single-tenant unique indexes that would break multi-tenancy:
+  //  - settings.key_1     → new tenants have no `key`; a 2nd null collides.
+  //  - tickets.emailId_1  → same Message-ID across two hotels would collide
+  //                          globally; dedup is now per-hotel {hotelId,emailId}.
+  const dropIndex = async (coll, name) => {
+    try {
+      await mongoose.connection.db.collection(coll).dropIndex(name);
+      console.log(`✓ Dropped stale index ${coll}.${name}`);
+    } catch (e) {
+      if (e.codeName !== 'IndexNotFound') console.log(`• ${coll}.${name}: ${e.codeName || e.message}`);
+    }
+  };
+  await dropIndex('settings', 'key_1');
+  await dropIndex('tickets', 'emailId_1');
 
   await mongoose.connection.close();
   console.log('✓ Migration done.');

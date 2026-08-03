@@ -56,8 +56,13 @@ describe('Email Ingest Service - Full Pipeline', () => {
     });
 
     // Verify all steps were called
-    expect(categorizeEmail).toHaveBeenCalledWith('Room is too cold', 'AC broken, please fix ASAP');
+    expect(categorizeEmail).toHaveBeenCalledWith(
+      'Room is too cold',
+      'AC broken, please fix ASAP',
+      { fromName: undefined, fromEmail: 'john@example.com' }
+    );
     expect(routeTicket).toHaveBeenCalledWith('complaint', 'high', 'negative', HOTEL);
+    // No AI name and no header name → falls back to deriving from the address.
     expect(extractGuestName).toHaveBeenCalledWith('john@example.com');
     expect(Ticket.create).toHaveBeenCalled();
 
@@ -144,6 +149,32 @@ describe('Email Ingest Service - Full Pipeline', () => {
 
     expect(result.category).toBe('inquiry');
     expect(result.assignedTo).toBe('general-support');
+  });
+
+  test('should use the AI-extracted name over the email address (bug fix)', async () => {
+    // Guest signs the body as "Max Mustermann" but writes from test.hotelflow@…
+    categorizeEmail.mockResolvedValue({
+      category: 'inquiry',
+      priority: 'low',
+      sentiment: 'neutral',
+      guestName: 'Max Mustermann',
+    });
+    routeTicket.mockResolvedValue('Rezeption');
+    extractGuestName.mockReturnValue('test hotelflow'); // the wrong old behavior
+    Ticket.create.mockImplementation((doc) => Promise.resolve(doc));
+
+    const result = await processIncomingEmail({
+      hotelId: HOTEL,
+      emailId: 'test-005',
+      from: 'test.hotelflow@gmail.com',
+      subject: 'Frage zum Zimmer',
+      body: 'Hallo, ist ein Zimmer frei? Viele Grüße, Max Mustermann',
+    });
+
+    // The ticket must carry the real name, not "test hotelflow".
+    expect(result.guestName).toBe('Max Mustermann');
+    // Address-derived fallback must NOT be used when the AI found a real name.
+    expect(extractGuestName).not.toHaveBeenCalled();
   });
 
   test('should propagate categorizer errors (critical step)', async () => {
